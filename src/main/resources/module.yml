@@ -1,16 +1,16 @@
-basePackage: org.lamisplus.modules.sync
-name: SyncModule
-dependencies: {PatientModule: 1.0.0, HivModule: 1.0.0, BiometricModule: 1.0.0}
+basePackage: org.lamisplus.modules.casemanager
+name: CaseManagerModule
+dependencies: {PatientModule: 1.0.0}
 store: true
 menus:
   - icon:
     disabled: false
-    name: Sync
-    state: Sync
-    url: /across/resources/static/sync/index.html
-umdLocation: /across/resources/static/sync/index.html
+    name: CaseManager
+    state: CaseManager
+    url: /across/resources/static/casemanager/index.html
+umdLocation: /across/resources/static/casemanager/index.html
 webModules:
-  - breadcrumb: Sync
-    name: SyncModule
-    path: sync
+  - breadcrumb: CaseManager
+    name: CaseManagerModule
+    path: casemanager
     position: 99

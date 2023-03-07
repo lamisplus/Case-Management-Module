@@ -10,10 +10,10 @@
     </parent>
 
     <groupId>org.lamisplus.modules</groupId>
-    <artifactId>sync</artifactId>
+    <artifactId>casemanager</artifactId>
     <version>1.0.0-2023.2</version>
     <packaging>jar</packaging>
-    <description>Sync Module</description>
+    <description>Case Manager Module</description>
     <properties>
         <java.version>1.8</java.version>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
@@ -309,7 +309,7 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <target>
-                                <copy todir="${project.build.directory}/classes/views/static/sync">
+                                <copy todir="${project.build.directory}/classes/views/static/casemanager">
                                     <fileset dir="${project.basedir}/build"/>
                                 </copy>
                             </target>

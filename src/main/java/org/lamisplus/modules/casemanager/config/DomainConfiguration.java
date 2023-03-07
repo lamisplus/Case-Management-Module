@@ -1,4 +1,4 @@
-package org.lamisplus.modules.sync.config;
+package org.lamisplus.modules.casemanager.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +17,8 @@ import javax.sql.DataSource;
 @Slf4j
 @Configuration
 @EnableJpaRepositories(
-        transactionManagerRef = "syncTransactionManger",
-        basePackages = {"org.lamisplus.modules.sync.repository"}
+        transactionManagerRef = "casemanagerTransactionManger",
+        basePackages = {"org.lamisplus.modules.casemanager.repository"}
 )
 public class DomainConfiguration {
 
@@ -28,7 +28,7 @@ public class DomainConfiguration {
     private  final EntityManagerFactory entityManagerFactory;
 
 
-    @Bean(name = "syncTransactionManger")
+    @Bean(name = "casemanagerTransactionManger")
     @Primary
     public TransactionManager transactionManager(){
         JpaTransactionManager jpaTransactionManager = new JpaTransactionManager();

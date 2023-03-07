@@ -1,4 +1,4 @@
-package org.lamisplus.modules.sync;
+package org.lamisplus.modules.casemanager;
 
 import com.foreach.across.config.AcrossApplication;
 import com.foreach.across.core.AcrossModule;
@@ -7,10 +7,10 @@ import com.foreach.across.core.context.configurer.ComponentScanConfigurer;
 @AcrossApplication(
 		modules = {
 		})
-public class SyncModule extends AcrossModule {
-	public static final String NAME = "SyncModule";
+public class CaseManagerModule extends AcrossModule {
+	public static final String NAME = "CaseManagerModule";
 
-	public SyncModule() {
+	public CaseManagerModule() {
 		super ();
 		addApplicationContextConfigurer (new ComponentScanConfigurer(
 				getClass ().getPackage ().getName () + ".repository",

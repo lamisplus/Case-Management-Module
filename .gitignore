@@ -40,7 +40,7 @@ node_modules
 .idea/
 gradlew/
 gradlew.bat
-src/main/resources/views/static/sync/
+src/main/resources/views/static/casemanager/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
