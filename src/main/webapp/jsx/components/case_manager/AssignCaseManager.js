@@ -83,17 +83,60 @@ const useStyles = makeStyles((theme) => ({
 
 const AssignCaseManager = (props) => {
   const location = useLocation();
-  const { patients } = location.state;
+  // const { patients } = location.state;
   const history = useHistory();
-
+  const result = JSON.parse(localStorage.getItem("patients"));
   const classes = useStyles();
+  const [states, setStates] = useState([]);
+  const [provinces, setProvinces] = useState([]);
   const [caseManager, setCaseManager] = useState([]);
-  const [patientAssigned, setPatientAssigned] = useState(patients);
+  const [patientAssigned, setPatientAssigned] = useState([]);
+  const [errors, setErrors] = useState({});
   const [assignedData, setAssignedData] = useState({
     assignedDate: "",
     casemanager: "",
-    patients: patients,
+    stateId: "",
+    lga: "",
+    patients: result,
   });
+
+  function getStateByCountryId(getCountryId) {
+    axios
+      .get(
+        `${url}organisation-units/parent-organisation-units/${getCountryId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .then((response) => {
+        setStates(response.data);
+      })
+      .catch((error) => {
+        //console.log(error);
+      });
+  }
+
+  const getProvinces = (e) => {
+    const stateId = e.target.value;
+    setAssignedData({ ...assignedData, stateId: e.target.value });
+    axios
+      .get(`${url}organisation-units/parent-organisation-units/${stateId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        setProvinces(
+          response.data.sort((x, y) => {
+            return x.id - y.id;
+          })
+        );
+      })
+      .catch((error) => {
+        //console.log(error);
+      });
+  };
+
+  const getStates = () => {
+    getStateByCountryId("1");
+    //setAssignedData({ ...assignedData, countryId: 1 });
+  };
 
   const getCaseManager = async () => {
     await axios
@@ -105,8 +148,13 @@ const AssignCaseManager = (props) => {
   };
 
   useEffect(() => {
+    const result = JSON.parse(localStorage.getItem("patients"));
+
+    setPatientAssigned(result);
+
+    getStates();
     getCaseManager();
-  }, [getCaseManager]);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -116,11 +164,29 @@ const AssignCaseManager = (props) => {
     });
   };
 
+  const validateInputs = () => {
+    let temp = { ...errors };
+    temp.assignedDate = assignedData.assignedDate
+      ? ""
+      : "Assign date is required.";
+    temp.casemanager = assignedData.casemanager
+      ? ""
+      : "Case manager is required.";
+    temp.stateId = assignedData.stateId ? "" : "State is required.";
+    temp.lga = assignedData.lga ? "" : "LGA is required.";
+    setErrors({
+      ...temp,
+    });
+    return Object.values(temp).every((x) => x === "");
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log(assignedData);
-    history.push("/");
+    if (validateInputs()) {
+      console.log(assignedData);
+      history.push("/");
+    }
   };
 
   return (
@@ -133,8 +199,12 @@ const AssignCaseManager = (props) => {
                 <MatButton
                   variant="contained"
                   color="primary"
-                  className={classes.button}
                   startIcon={<HomeIcon />}
+                  style={{
+                    backgroundColor: "#014d88",
+                    fontWeight: "bolder",
+                    color: "fff",
+                  }}
                 >
                   back Home
                 </MatButton>
@@ -160,6 +230,13 @@ const AssignCaseManager = (props) => {
                       value={assignedData.assignedDate}
                       onChange={handleInputChange}
                     />
+                    {errors.assignedDate !== "" ? (
+                      <span className={classes.error}>
+                        {errors.assignedDate}
+                      </span>
+                    ) : (
+                      ""
+                    )}
                   </FormGroup>
                 </Col>
                 <Col>
@@ -187,6 +264,75 @@ const AssignCaseManager = (props) => {
                         </option>
                       ))}
                     </select>
+                    {errors.casemanager !== "" ? (
+                      <span className={classes.error}>
+                        {errors.casemanager}
+                      </span>
+                    ) : (
+                      ""
+                    )}
+                  </FormGroup>
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <FormGroup>
+                    <Label className={classes.label}>
+                      State <span style={{ color: "red" }}> *</span>
+                    </Label>
+                    <select
+                      className="form-control"
+                      name="state"
+                      id="state"
+                      onChange={getProvinces}
+                      value={assignedData.stateId}
+                      style={{
+                        border: "1px solid #014D88",
+                        borderRadius: "0.2rem",
+                      }}
+                    >
+                      <option value={""}></option>
+                      {states.map((value) => (
+                        <option key={value.id} value={value.id}>
+                          {value.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.stateId !== "" ? (
+                      <span className={classes.error}>{errors.stateId}</span>
+                    ) : (
+                      ""
+                    )}
+                  </FormGroup>
+                </Col>
+                <Col>
+                  <FormGroup>
+                    <Label className={classes.label}>
+                      LGA <span style={{ color: "red" }}> *</span>
+                    </Label>
+                    <select
+                      className="form-control"
+                      name="lga"
+                      id="lga"
+                      value={assignedData.lga}
+                      onChange={handleInputChange}
+                      style={{
+                        border: "1px solid #014D88",
+                        borderRadius: "0.2rem",
+                      }}
+                    >
+                      <option value={""}></option>
+                      {provinces.map((value, index) => (
+                        <option key={index} value={value.id}>
+                          {value.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.lga !== "" ? (
+                      <span className={classes.error}>{errors.lga}</span>
+                    ) : (
+                      ""
+                    )}
                   </FormGroup>
                 </Col>
               </Row>
@@ -196,6 +342,11 @@ const AssignCaseManager = (props) => {
                 type="submit"
                 startIcon={<SendIcon />}
                 onClick={handleSubmit}
+                style={{
+                  backgroundColor: "#014d88",
+                  fontWeight: "bolder",
+                  color: "fff",
+                }}
               >
                 Submit
               </Button>
@@ -214,7 +365,7 @@ const AssignCaseManager = (props) => {
                   </tr>
                   {patientAssigned &&
                     patientAssigned.map((item, value) => (
-                      <tr>
+                      <tr key={value + 1}>
                         <td>{item.hospitalNo}</td>
                         <td>{item.fullname}</td>
                         <td>{item.sex}</td>

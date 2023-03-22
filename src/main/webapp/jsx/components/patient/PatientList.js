@@ -54,8 +54,8 @@ const tableIcons = {
 
 const PatientList = (props) => {
   const [loading, setLoading] = useState("");
-  const [patients, setPatients] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [patientArray, setPatientArray] = useState([]);
 
   const handlePatientRecords = (query) =>
     new Promise((resolve, reject) => {
@@ -132,17 +132,20 @@ const PatientList = (props) => {
         });
     });
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    localStorage.removeItem("patients");
+  }, []);
 
   const handlePatientChanges = (patient) => {
     let patientArray = [];
 
-    let uniquePatients = uniq(patient).map((item) => {
+    uniq(patient).map((item) => {
       patientArray.push(item);
     });
 
-    setPatients(patientArray);
-    //localStorage.setItem("samples", JSON.stringify(samples));
+    setPatientArray(patientArray);
+    localStorage.removeItem("patients");
+    localStorage.setItem("patients", JSON.stringify(patientArray));
   };
 
   const handleChangePage = (page) => {
@@ -162,7 +165,7 @@ const PatientList = (props) => {
           <Link
             to={{
               pathname: "/assign",
-              state: { patients: patients },
+              //state: { patients: patients },
             }}
           >
             <Button
@@ -171,6 +174,7 @@ const PatientList = (props) => {
               className="float-right mr-1"
               startIcon={<PersonAddIcon />}
               //onClick={addCaseManager}
+              disabled={patientArray.length !== 0 ? false : true}
               style={{
                 float: "right",
                 backgroundColor: "#014d88",

@@ -32,10 +32,10 @@ const Home = (props) => {
     switch (urlTabs) {
       case "existing-manifest":
         return setKey("case-manager");
-      case "sample-tracker":
-        return setKey("tracker");
+      case "assign-casemanager":
+        return setKey("assign-casemanager");
       default:
-        return setKey("case-manager");
+        return setKey("assign-casemanager");
     }
   }, [urlTabs]);
 
@@ -53,11 +53,14 @@ const Home = (props) => {
                   onSelect={(k) => setKey(k)}
                   className="mb-3"
                 >
+                  <Tab
+                    eventKey="assign-casemanager"
+                    title="Assign Case Manager"
+                  >
+                    <PatientList />
+                  </Tab>
                   <Tab eventKey="case-manager" title="Case Managers">
                     <CaseManagerList />
-                  </Tab>
-                  <Tab eventKey="collection" title="Assign Case Manager">
-                    <PatientList />
                   </Tab>
                 </Tabs>
               </div>
