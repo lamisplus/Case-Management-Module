@@ -2,8 +2,10 @@ import React, { useState, Fragment, useEffect } from "react";
 import { Row, Col, Card, Tab, Tabs } from "react-bootstrap";
 import CaseManagerList from "./case_manager/CaseManagerList";
 import PatientList from "./patient/PatientList";
+import AssignedClients from "./patient/AssignedClients";
 import axios from "axios";
 import { token, url } from "../../api";
+import PageTitle from "./layouts/PageTitle";
 
 const divStyle = {
   borderRadius: "2px",
@@ -32,6 +34,8 @@ const Home = (props) => {
     switch (urlTabs) {
       case "existing-manifest":
         return setKey("case-manager");
+      case "assigned-casemanager":
+        return setKey("assigned-casemanager");
       case "assign-casemanager":
         return setKey("assign-casemanager");
       default:
@@ -46,18 +50,23 @@ const Home = (props) => {
           <Card style={divStyle}>
             <Card.Body>
               {/* <!-- Nav tabs --> */}
+
               <div className="custom-tab-1">
+                <PageTitle activeMenu="Home " motherMenu="Case Manager" />
                 <Tabs
                   id="controlled-tab-example"
                   activeKey={key}
                   onSelect={(k) => setKey(k)}
                   className="mb-3"
                 >
-                  <Tab
-                    eventKey="assign-casemanager"
-                    title="Assign Case Manager"
-                  >
+                  <Tab eventKey="assign-casemanager" title="Enrolled Clients">
                     <PatientList />
+                  </Tab>
+                  <Tab
+                    eventKey="assigned-casemanager"
+                    title="Assigned Managers"
+                  >
+                    <AssignedClients />
                   </Tab>
                   <Tab eventKey="case-manager" title="Case Managers">
                     <CaseManagerList />

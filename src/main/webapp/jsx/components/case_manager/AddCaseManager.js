@@ -19,6 +19,8 @@ import SaveIcon from "@material-ui/icons/Save";
 import CancelIcon from "@material-ui/icons/Cancel";
 import { Alert } from "reactstrap";
 import { Spinner } from "reactstrap";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import axios from "axios";
 import { token, url as baseUrl } from "../../../api";
 import { toast } from "react-toastify";
@@ -33,6 +35,10 @@ const useStyles = makeStyles((theme) => ({
   form: {
     width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(3),
+  },
+  error: {
+    color: "#f85032",
+    fontSize: "11px",
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
@@ -68,6 +74,9 @@ const AddCaseManager = (props) => {
     phoneNumber: "",
   });
 
+  const [contactPhone, setContactPhone] = useState("");
+  const [errors, setErrors] = useState({});
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setData({
@@ -76,25 +85,47 @@ const AddCaseManager = (props) => {
     });
   };
 
+  const checkPhoneNumber = (e) => {
+    setContactPhone(e);
+  };
+
+  const validateInputs = () => {
+    let temp = { ...errors };
+    temp.designation = data.designation ? "" : "Designation is required.";
+    temp.firstName = data.firstName ? "" : "First name is required.";
+    temp.lastName = data.lastName ? "" : "Last name is required.";
+    temp.sex = data.sex ? "" : "Sex is required.";
+    temp.phoneNumber = data.phoneNumber ? "" : "Phone number is required.";
+
+    setErrors({
+      ...temp,
+    });
+    return Object.values(temp).every((x) => x === "");
+  };
+
   const addCaseManager = async (e) => {
     e.preventDefault();
 
-    console.log("data", data);
+    data.phoneNumber = contactPhone;
 
-    await axios
-      .post(`${baseUrl}casemanager/create`, data, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((resp) => {
-        console.log(resp);
-        toast.success("Case manager added successfully");
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error("Something went wrong. Please try again... " + err.message);
-      });
+    if (validateInputs()) {
+      await axios
+        .post(`${baseUrl}casemanager/create`, data, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((resp) => {
+          console.log(resp);
+          toast.success("Case manager added successfully");
+        })
+        .catch((err) => {
+          //console.log(err);
+          toast.error(
+            "Something went wrong. Please try again... " + err.message
+          );
+        });
 
-    props.togglestatus();
+      props.togglestatus();
+    }
   };
 
   return (
@@ -130,6 +161,13 @@ const AddCaseManager = (props) => {
                           borderRadius: "0.2rem",
                         }}
                       />
+                      {errors.designation !== "" ? (
+                        <span className={classes.error}>
+                          {errors.designation}
+                        </span>
+                      ) : (
+                        ""
+                      )}
                     </FormGroup>
                   </Col>
                   <Col md={6}>
@@ -149,6 +187,13 @@ const AddCaseManager = (props) => {
                           borderRadius: "0.2rem",
                         }}
                       />
+                      {errors.firstName !== "" ? (
+                        <span className={classes.error}>
+                          {errors.firstName}
+                        </span>
+                      ) : (
+                        ""
+                      )}
                     </FormGroup>
                   </Col>
                 </Row>
@@ -170,6 +215,11 @@ const AddCaseManager = (props) => {
                           borderRadius: "0.2rem",
                         }}
                       />
+                      {errors.lastName !== "" ? (
+                        <span className={classes.error}>{errors.lastName}</span>
+                      ) : (
+                        ""
+                      )}
                     </FormGroup>
                   </Col>
                   <Col md={6}>
@@ -194,6 +244,11 @@ const AddCaseManager = (props) => {
                         <option>Male</option>
                         <option>Female</option>
                       </select>
+                      {errors.sex !== "" ? (
+                        <span className={classes.error}>{errors.sex}</span>
+                      ) : (
+                        ""
+                      )}
                     </FormGroup>
                   </Col>
                 </Row>
@@ -203,18 +258,29 @@ const AddCaseManager = (props) => {
                       <Label for="phoneNumber" className={classes.label}>
                         Phone Number <span style={{ color: "red" }}> *</span>
                       </Label>
-                      <Input
-                        type="text"
-                        name="phoneNumber"
-                        id="phoneNumber"
-                        value={data.phoneNumber}
-                        onChange={handleInputChange}
-                        className="form-control"
-                        style={{
-                          border: "1px solid #014D88",
-                          borderRadius: "0.2rem",
+                      <PhoneInput
+                        containerStyle={{
+                          width: "100%",
+                          border: "1px solid #014d88",
                         }}
+                        inputStyle={{
+                          width: "100%",
+                          borderRadius: "0px",
+                          height: 44,
+                        }}
+                        country={"ng"}
+                        masks={{ ng: "...-...-....", at: "(....) ...-...." }}
+                        placeholder="(234)7099999999"
+                        value={data.phoneNumber}
+                        onChange={(e) => checkPhoneNumber(e)}
                       />
+                      {errors.phoneNumber !== "" ? (
+                        <span className={classes.error}>
+                          {errors.phoneNumber}
+                        </span>
+                      ) : (
+                        ""
+                      )}
                     </FormGroup>
                   </Col>
                 </Row>

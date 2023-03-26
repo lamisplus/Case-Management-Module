@@ -12,6 +12,7 @@ import "./../src/main/webapp/css/style.css";
 
 import Home from "./main/webapp/jsx/components/Home";
 import AssignCaseManager from "./main/webapp/jsx/components/case_manager/AssignCaseManager";
+import ViewAssignedClients from "./main/webapp/jsx/components/patient/ViewAssignedClients";
 
 export default function App() {
   return (
@@ -20,6 +21,9 @@ export default function App() {
       <Switch>
         <Route path="/assign">
           <AssignCaseManager />
+        </Route>
+        <Route path="/clients">
+          <ViewAssignedClients />
         </Route>
         <Route path="/">
           <Home />

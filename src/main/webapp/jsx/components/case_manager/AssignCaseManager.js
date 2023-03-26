@@ -7,6 +7,7 @@ import Button from "@mui/material/Button";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { token, url } from "../../../api";
+import PageTitle from "../layouts/PageTitle";
 
 import { Link } from "react-router-dom";
 import MatButton from "@material-ui/core/Button";
@@ -86,6 +87,7 @@ const AssignCaseManager = (props) => {
   // const { patients } = location.state;
   const history = useHistory();
   const result = JSON.parse(localStorage.getItem("patients"));
+  console.log(result);
   const classes = useStyles();
   const [states, setStates] = useState([]);
   const [provinces, setProvinces] = useState([]);
@@ -93,12 +95,20 @@ const AssignCaseManager = (props) => {
   const [patientAssigned, setPatientAssigned] = useState([]);
   const [errors, setErrors] = useState({});
   const [assignedData, setAssignedData] = useState({
-    assignedDate: "",
-    casemanager: "",
-    stateId: "",
+    assignDate: "",
+    caseManager: "",
+    state: "",
     lga: "",
     patients: result,
   });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setAssignedData({
+      ...assignedData,
+      [name]: value,
+    });
+  };
 
   function getStateByCountryId(getCountryId) {
     axios
@@ -109,14 +119,18 @@ const AssignCaseManager = (props) => {
       .then((response) => {
         setStates(response.data);
       })
-      .catch((error) => {
-        //console.log(error);
-      });
+      .catch((error) => {});
   }
 
   const getProvinces = (e) => {
-    const stateId = e.target.value;
-    setAssignedData({ ...assignedData, stateId: e.target.value });
+    let stateValue = e.target.value.split(" ");
+    let stateId = stateValue[0];
+    let stateName = stateValue[1];
+
+    if (stateName.length > 0) {
+      setAssignedData({ ...assignedData, state: e.target.value });
+    }
+
     axios
       .get(`${url}organisation-units/parent-organisation-units/${stateId}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -128,14 +142,11 @@ const AssignCaseManager = (props) => {
           })
         );
       })
-      .catch((error) => {
-        //console.log(error);
-      });
+      .catch((error) => {});
   };
 
   const getStates = () => {
     getStateByCountryId("1");
-    //setAssignedData({ ...assignedData, countryId: 1 });
   };
 
   const getCaseManager = async () => {
@@ -156,23 +167,13 @@ const AssignCaseManager = (props) => {
     getCaseManager();
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setAssignedData({
-      ...assignedData,
-      [name]: value,
-    });
-  };
-
   const validateInputs = () => {
     let temp = { ...errors };
-    temp.assignedDate = assignedData.assignedDate
-      ? ""
-      : "Assign date is required.";
-    temp.casemanager = assignedData.casemanager
+    temp.assignDate = assignedData.assignDate ? "" : "Assign date is required.";
+    temp.caseManager = assignedData.caseManager
       ? ""
       : "Case manager is required.";
-    temp.stateId = assignedData.stateId ? "" : "State is required.";
+    temp.state = assignedData.state ? "" : "State is required.";
     temp.lga = assignedData.lga ? "" : "LGA is required.";
     setErrors({
       ...temp,
@@ -180,11 +181,27 @@ const AssignCaseManager = (props) => {
     return Object.values(temp).every((x) => x === "");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validateInputs()) {
       console.log(assignedData);
+
+      await axios
+        .post(`${url}assign/create`, assignedData, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((resp) => {
+          console.log(resp);
+          toast.success("Case manager assigned to patient successfully");
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error(
+            "Something went wrong. Please try again... " + err.message
+          );
+        });
+
       history.push("/");
     }
   };
@@ -194,6 +211,7 @@ const AssignCaseManager = (props) => {
       <Container maxWidth>
         <Card>
           <CardBody>
+            <PageTitle activeMenu="Assign " motherMenu="Case Manager" />
             <p style={{ textAlign: "right" }}>
               <Link color="inherit" to={{ pathname: "/" }}>
                 <MatButton
@@ -206,7 +224,7 @@ const AssignCaseManager = (props) => {
                     color: "fff",
                   }}
                 >
-                  back Home
+                  back
                 </MatButton>
               </Link>
             </p>
@@ -217,23 +235,21 @@ const AssignCaseManager = (props) => {
                 <Col>
                   {" "}
                   <FormGroup>
-                    <Label for="assignedDate" className={classes.label}>
+                    <Label for="assignDate" className={classes.label}>
                       Date & Time <span style={{ color: "red" }}> *</span>
                     </Label>
                     <Input
                       type="datetime-local"
                       max={new Date().toISOString().substr(0, 16)}
-                      name="assignedDate"
-                      id="assignedDate"
+                      name="assignDate"
+                      id="assignDate"
                       placeholder="Date & Time Created"
                       className={classes.input}
-                      value={assignedData.assignedDate}
+                      value={assignedData.assignDate}
                       onChange={handleInputChange}
                     />
-                    {errors.assignedDate !== "" ? (
-                      <span className={classes.error}>
-                        {errors.assignedDate}
-                      </span>
+                    {errors.assignDate !== "" ? (
+                      <span className={classes.error}>{errors.assignDate}</span>
                     ) : (
                       ""
                     )}
@@ -241,7 +257,7 @@ const AssignCaseManager = (props) => {
                 </Col>
                 <Col>
                   <FormGroup>
-                    <Label for="casemanager" className={classes.label}>
+                    <Label for="caseManager" className={classes.label}>
                       Case Manager <span style={{ color: "red" }}> *</span>
                     </Label>
                     <select
@@ -252,21 +268,25 @@ const AssignCaseManager = (props) => {
                         fontSize: "14px",
                         color: "#000",
                       }}
-                      name="casemanager"
-                      value={assignedData.casemanager}
-                      id="casemanager"
+                      name="caseManager"
+                      value={assignedData.caseManager}
+                      id="caseManager"
                       onChange={handleInputChange}
                     >
                       <option>Select Case Manager</option>
-                      {caseManager.map((value, i) => (
-                        <option key={i} value={value.id}>
-                          {`${value.firstName} ${value.lastName}`}
-                        </option>
-                      ))}
+                      {caseManager &&
+                        caseManager.map((value, i) => (
+                          <option
+                            key={i}
+                            value={`${value.firstName} ${value.lastName}`}
+                          >
+                            {`${value.firstName} ${value.lastName}`}
+                          </option>
+                        ))}
                     </select>
-                    {errors.casemanager !== "" ? (
+                    {errors.caseManager !== "" ? (
                       <span className={classes.error}>
-                        {errors.casemanager}
+                        {errors.caseManager}
                       </span>
                     ) : (
                       ""
@@ -285,7 +305,7 @@ const AssignCaseManager = (props) => {
                       name="state"
                       id="state"
                       onChange={getProvinces}
-                      value={assignedData.stateId}
+                      value={assignedData.state}
                       style={{
                         border: "1px solid #014D88",
                         borderRadius: "0.2rem",
@@ -293,13 +313,16 @@ const AssignCaseManager = (props) => {
                     >
                       <option value={""}></option>
                       {states.map((value) => (
-                        <option key={value.id} value={value.id}>
+                        <option
+                          key={value.id}
+                          value={`${value.id} ${value.name}`}
+                        >
                           {value.name}
                         </option>
                       ))}
                     </select>
-                    {errors.stateId !== "" ? (
-                      <span className={classes.error}>{errors.stateId}</span>
+                    {errors.state !== "" ? (
+                      <span className={classes.error}>{errors.state}</span>
                     ) : (
                       ""
                     )}
@@ -323,7 +346,7 @@ const AssignCaseManager = (props) => {
                     >
                       <option value={""}></option>
                       {provinces.map((value, index) => (
-                        <option key={index} value={value.id}>
+                        <option key={index} value={value.name}>
                           {value.name}
                         </option>
                       ))}
@@ -360,17 +383,17 @@ const AssignCaseManager = (props) => {
                     <th>Hospital No</th>
                     <th>Full Name</th>
                     <th>Sex</th>
-                    {/* <th>Enrolled</th> */}
-                    <th>Date registered</th>
+                    <th>Age</th>
+                    <th>Current Status</th>
                   </tr>
                   {patientAssigned &&
                     patientAssigned.map((item, value) => (
                       <tr key={value + 1}>
                         <td>{item.hospitalNo}</td>
-                        <td>{item.fullname}</td>
+                        <td>{item.fullName}</td>
                         <td>{item.sex}</td>
-                        {/* <td>{item.isEnrolled}</td> */}
-                        <td>{item.dateOfRegistration}</td>
+                        <td>{item.age}</td>
+                        <td>{item.currentStatus}</td>
                       </tr>
                     ))}
                 </tbody>

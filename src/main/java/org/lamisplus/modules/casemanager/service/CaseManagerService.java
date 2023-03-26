@@ -22,7 +22,6 @@ public class CaseManagerService {
 
     private final CaseManagerDTOMapper caseManagerDTOMapper;
 
-
     public CaseManager Save(CaseManagerRequest caseManagerRequest) throws Exception {
         CaseManager caseManagerobj = new CaseManager();
         caseManagerobj.setDesignation(caseManagerRequest.getDesignation());

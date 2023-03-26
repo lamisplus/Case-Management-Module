@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useCallback, useState, forwardRef } from "react";
 import { Card } from "react-bootstrap";
 
 import { Link } from "react-router-dom";
@@ -7,7 +7,6 @@ import Button from "@material-ui/core/Button";
 import uniq from "lodash/uniq";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
-import { forwardRef } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { token, url } from "../../../api";
@@ -56,83 +55,80 @@ const PatientList = (props) => {
   const [loading, setLoading] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [patientArray, setPatientArray] = useState([]);
+  const [assignedClient, setAssignedClient] = useState([]);
+  const [patients, setPatients] = useState([]);
 
-  const handlePatientRecords = (query) =>
-    new Promise((resolve, reject) => {
-      axios
-        .get(
-          `${url}hiv/patients?pageSize=${query.pageSize}&pageNo=${query.page}&searchValue=${query.search}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
-        .then((response) => response)
-        .then((result) => {
-          if (result.data.records === null) {
-            resolve({
-              data: [],
-              page: 0,
-              totalCount: 0,
+  const getAssignedClient = () => {
+    axios
+      .get(`${url}assign/list`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        let arr = [];
+        if (response.data === null) {
+        } else {
+          response.data.forEach((x) => {
+            x.patients.forEach((y) => {
+              arr.push(y);
             });
-          } else {
-            resolve({
-              data: result.data.records.map((row) => ({
-                hospitalNo: row.hospitalNumber,
-                fullname: `${row.firstName} ${row.otherName} ${row.surname}`,
-                sex: row.sex,
-                dob: row.dateOfBirth,
-                age: row.age,
-                biometricStatus: row.biometricStatus,
-                isEnrolled: row.isEnrolled,
-                commenced: row.commenced,
-                dateOfRegistration: row.dateOfRegistration,
-                // actions: (
-                //   <Link
-                //     to={{
-                //       pathname: "/patient-history",
-                //       state: { patientObj: row },
-                //     }}
-                //   >
-                //     <ButtonGroup
-                //       variant="contained"
-                //       aria-label="split button"
-                //       style={{
-                //         backgroundColor: "rgb(153, 46, 98)",
-                //         height: "30px",
-                //         width: "215px",
-                //       }}
-                //       size="large"
-                //     >
-                //       <Button
-                //         color="primary"
-                //         size="small"
-                //         aria-label="select merge strategy"
-                //         aria-haspopup="menu"
-                //         style={{ backgroundColor: "rgb(153, 46, 98)" }}
-                //       >
-                //         <MdDashboard />
-                //       </Button>
-                //       <Button style={{ backgroundColor: "rgb(153, 46, 98)" }}>
-                //         <span
-                //           style={{
-                //             fontSize: "12px",
-                //             color: "#fff",
-                //             fontWeight: "bolder",
-                //           }}
-                //         >
-                //           Assign Manager
-                //         </span>
-                //       </Button>
-                //     </ButtonGroup>
-                //   </Link>
-                // ),
-              })),
-              page: query.page,
-              totalCount: result.data.totalRecords,
-            });
-          }
-        });
-    });
+          });
+        }
+        setAssignedClient(arr);
+      })
+      .catch((err) => console.error(err));
+  };
+
+  const getPatients = async () => {
+    try {
+      const response = await axios.get(
+        `${url}hiv/patients?searchParam=*&pageNo=0&pageSize=100`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setPatients(response.data.records);
+    } catch (e) {
+      toast.error("An error occurred while fetching enrolled data", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+      setLoading(false);
+    }
+  };
+
+  // const handlePatientRecords = (query) =>
+  //   new Promise((resolve, reject) => {
+  //     axios
+  //       .get(
+  //         `${url}hiv/patients?pageSize=${query.pageSize}&pageNo=${query.page}&searchValue=${query.search}`,
+  //         { headers: { Authorization: `Bearer ${token}` } }
+  //       )
+  //       .then((response) => response)
+  //       .then((result) => {
+  //         if (result.data.records === null) {
+  //           resolve({
+  //             data: [],
+  //             page: 0,
+  //             totalCount: 0,
+  //           });
+  //         } else {
+  //           resolve({
+  //             data: result.data.records.map((row) => ({
+  //               hospitalNo: row.hospitalNumber,
+  //               fullName: `${row.firstName} ${row.otherName} ${row.surname}`,
+  //               sex: row.sex,
+  //               dob: row.dateOfBirth,
+  //               age: row.age,
+  //               biometricStatus: row.biometricStatus,
+  //               currentStatus: row.currentStatus,
+  //             })),
+  //             page: query.page,
+  //             totalCount: result.data.totalRecords,
+  //           });
+  //         }
+  //       });
+  //   });
 
   useEffect(() => {
+    getPatients();
+    getAssignedClient();
     localStorage.removeItem("patients");
   }, []);
 
@@ -158,81 +154,99 @@ const PatientList = (props) => {
     },
   };
 
+  const sampleFilter = (patients, assignedClient) => {
+    if (patients && assignedClient) {
+      return patients.filter((x) => {
+        return !assignedClient.some((y) => {
+          return x.hospitalNumber === y.hospitalNo;
+        });
+      });
+    }
+  };
+
+  const values = sampleFilter(patients, assignedClient);
+
   return (
     <div>
-      <Card>
-        <Card.Body>
-          <Link
-            to={{
-              pathname: "/assign",
-              //state: { patients: patients },
+      {patientArray.length !== 0 ? (
+        <Link
+          to={{
+            pathname: "/assign",
+            //state: { patients: patients },
+          }}
+        >
+          <Button
+            variant="contained"
+            color="primary"
+            className="float-right mr-1"
+            startIcon={<PersonAddIcon />}
+            style={{
+              float: "right",
+              backgroundColor: "#014d88",
+              fontWeight: "bolder",
+              color: "fff",
             }}
           >
-            <Button
-              variant="contained"
-              color="primary"
-              className="float-right mr-1"
-              startIcon={<PersonAddIcon />}
-              //onClick={addCaseManager}
-              disabled={patientArray.length !== 0 ? false : true}
-              style={{
-                float: "right",
-                backgroundColor: "#014d88",
-                fontWeight: "bolder",
-                color: "fff",
-              }}
-            >
-              <span style={{ textTransform: "capitalize" }}>
-                Assign Case Manager{" "}
-              </span>
-            </Button>
-          </Link>
-          <br />
-          <br />
-          <br />
-          <MaterialTable
-            icons={tableIcons}
-            title="Enrolled Clients"
-            columns={[
-              { title: "Hospital ID", field: "hospitalNo" },
-              { title: "Full Name", field: "fullname" },
-              { title: "Sex", field: "sex" },
-              { title: "DOB", field: "dob" },
-              { title: "Age", field: "age" },
-              { title: "Biometrics", field: "biometricStatus" },
-              { title: "Enrolled", field: "isEnrolled" },
-              { title: "Commenced", field: "commenced" },
-              { title: "Date Registered", field: "dateOfRegistration" },
-              // { title: "Actions", field: "actions", filtering: false },
-            ]}
-            isLoading={loading}
-            // data={handlePulledData}
-            data={handlePatientRecords}
-            options={{
-              headerStyle: {
-                backgroundColor: "#014d88",
-                color: "#fff",
-                fontSize: "16px",
-                padding: "10px",
-              },
-              searchFieldStyle: {
-                width: "200%",
-                margingLeft: "250px",
-              },
-              selection: true,
-              filtering: false,
-              exportButton: false,
-              searchFieldAlignment: "left",
-              pageSizeOptions: [10, 20, 50, 100],
-              pageSize: 10,
-              debounceInterval: 400,
-            }}
-            onSelectionChange={(rows) => handlePatientChanges(rows)}
-            onChangePage={handleChangePage}
-            localization={localization}
-          />
-        </Card.Body>
-      </Card>
+            <span style={{ textTransform: "capitalize" }}>
+              Assign Case Manager{" "}
+            </span>
+          </Button>
+        </Link>
+      ) : (
+        ""
+      )}
+
+      <br />
+      <br />
+      <MaterialTable
+        icons={tableIcons}
+        title="List of enrolled Clients"
+        columns={[
+          { title: "Hospital ID", field: "hospitalNo" },
+          { title: "Full Name", field: "fullName" },
+          { title: "Sex", field: "sex" },
+          { title: "DOB", field: "dob" },
+          { title: "Age", field: "age" },
+          { title: "Biometrics", field: "biometricStatus" },
+          { title: "Current Status", field: "currentStatus" },
+          //{ title: "Facility", field: "facilityId" },
+          // { title: "Date Registered", field: "dateOfRegistration" },
+          // { title: "Actions", field: "actions", filtering: false },
+        ]}
+        isLoading={loading}
+        //data={handlePatientRecords}
+        data={values.map((row, i) => ({
+          hospitalNo: row.hospitalNumber,
+          fullName: `${row.firstName} ${row.otherName} ${row.surname}`,
+          sex: row.sex,
+          dob: row.dateOfBirth,
+          age: row.age,
+          biometricStatus: row.biometricStatus,
+          currentStatus: row.currentStatus,
+        }))}
+        options={{
+          headerStyle: {
+            backgroundColor: "#014d88",
+            color: "#fff",
+            fontSize: "16px",
+            padding: "10px",
+          },
+          searchFieldStyle: {
+            width: "200%",
+            margingLeft: "250px",
+          },
+          selection: true,
+          filtering: false,
+          exportButton: false,
+          searchFieldAlignment: "left",
+          pageSizeOptions: [10, 20, 50, 100],
+          pageSize: 10,
+          debounceInterval: 400,
+        }}
+        onSelectionChange={(rows) => handlePatientChanges(rows)}
+        onChangePage={handleChangePage}
+        localization={localization}
+      />
     </div>
   );
 };

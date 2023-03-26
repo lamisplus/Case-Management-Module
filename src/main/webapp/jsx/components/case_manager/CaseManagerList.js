@@ -1,21 +1,21 @@
 import React, { useEffect, useCallback, useState } from "react";
+import { useLocation, useHistory } from "react-router-dom";
 import MaterialTable from "material-table";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import ListIcon from "@mui/icons-material/List";
+
 import AddCaseManager from "./AddCaseManager";
 import EditCaseManager from "./EditCaseManager";
+import Swal from "sweetalert2";
 
-import { MdDashboard, MdDeleteForever, MdModeEdit } from "react-icons/md";
+import { MdDeleteForever, MdModeEdit } from "react-icons/md";
 
-import SplitActionButton from "../SampleCollection/SplitActionButton";
+import SplitActionButton from "../layouts/SplitActionButton";
 
 import { Badge, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 
-import "../SampleCollection/sample.css";
+import "../layouts/sample.css";
 
 import { forwardRef } from "react";
 import axios from "axios";
@@ -112,7 +112,7 @@ const CaseManagerList = (props) => {
   const classes = useStyles();
   const [loading, setLoading] = useState("");
   const [permissions, setPermissions] = useState([]);
-  const [config, setConfig] = useState([]);
+  const history = useHistory();
   const [currentPage, setCurrentPage] = useState(1);
   const [addModal, setAddModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
@@ -123,7 +123,10 @@ const CaseManagerList = (props) => {
 
   const toggleEdit = () => setEditModal(!editModal);
 
-  const toggleDelete = (id) => setModal(!modal);
+  const toggleDelete = (id) => {
+    localStorage.setItem("patientID", JSON.stringify(id));
+    setModal(!modal);
+  };
 
   const userPermission = () => {
     axios
@@ -140,7 +143,6 @@ const CaseManagerList = (props) => {
   };
 
   const editCaseManager = (data) => {
-    //console.log(data);
     setCaseManager(data);
     setEditModal(!editModal);
   };
@@ -154,7 +156,31 @@ const CaseManagerList = (props) => {
     //userPermission();
   }, []);
 
-  const handleDelete = () => {};
+  const handleDelete = () => {
+    const patientId = localStorage.getItem("patientID");
+    axios
+      .delete(`${url}casemanager/delete/${patientId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        localStorage.removeItem("patientID");
+        Swal.fire({
+          icon: "success",
+          text: "Patient Deleted Successfully",
+          timer: 1500,
+        });
+
+        setModal(false);
+        history.push("/");
+      })
+      .catch((error) => {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "An error occurred while deleting!!!",
+        });
+      });
+  };
 
   const actionItems = (row) => {
     return [
