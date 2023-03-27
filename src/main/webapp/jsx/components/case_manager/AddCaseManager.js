@@ -123,7 +123,7 @@ const AddCaseManager = (props) => {
             "Something went wrong. Please try again... " + err.message
           );
         });
-
+      props.getAllCaseManagers();
       props.togglestatus();
     }
   };

@@ -118,6 +118,7 @@ const CaseManagerList = (props) => {
   const [editModal, setEditModal] = useState(false);
   const [modal, setModal] = useState(false);
   const [caseManager, setCaseManager] = useState({});
+  const [caseManagers, setCaseManagers] = useState([]);
 
   const toggle = () => setAddModal(!addModal);
 
@@ -151,7 +152,20 @@ const CaseManagerList = (props) => {
     setModal(false);
   };
 
+  const getAllCaseManagers = () => {
+    try {
+      axios
+        .get(`${url}casemanager/list`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((resp) => setCaseManagers(resp.data));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
+    getAllCaseManagers();
     //setLoading("true");
     //userPermission();
   }, []);
@@ -166,11 +180,12 @@ const CaseManagerList = (props) => {
         localStorage.removeItem("patientID");
         Swal.fire({
           icon: "success",
-          text: "Patient Deleted Successfully",
+          text: "Case Manager Deleted Successfully",
           timer: 1500,
         });
 
         setModal(false);
+        getAllCaseManagers();
         history.push("/");
       })
       .catch((error) => {
@@ -220,41 +235,6 @@ const CaseManagerList = (props) => {
     ];
   };
 
-  const handlePulledData = (query) =>
-    new Promise((resolve, reject) => {
-      axios
-        .get(`${url}casemanager/list`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((resp) => resp)
-        .then((result) => {
-          if (result.data === null) {
-            resolve({
-              data: [],
-              page: 0,
-              totalCount: 0,
-            });
-          } else {
-            resolve({
-              data: result.data.map((row) => ({
-                designation: row.designation,
-                firstName: row.firstName,
-                lastName: row.lastName,
-                gender: row.sex,
-                phoneNumber: row.phoneNumber,
-                actions: (
-                  <>
-                    <SplitActionButton actions={actionItems(row)} />
-                  </>
-                ),
-              })),
-              page: query.page,
-              totalCount: result.data.totalRecords,
-            });
-          }
-        });
-    });
-
   const handleChangePage = (page) => {
     setCurrentPage(page + 1);
   };
@@ -297,7 +277,21 @@ const CaseManagerList = (props) => {
           { title: "Action", field: "actions" },
         ]}
         isLoading={loading}
-        data={handlePulledData}
+        data={
+          caseManagers &&
+          caseManagers.map((row) => ({
+            designation: row.designation,
+            firstName: row.firstName,
+            lastName: row.lastName,
+            gender: row.sex,
+            phoneNumber: row.phoneNumber,
+            actions: (
+              <>
+                <SplitActionButton actions={actionItems(row)} />
+              </>
+            ),
+          }))
+        }
         options={{
           headerStyle: {
             backgroundColor: "#014d88",
@@ -320,11 +314,16 @@ const CaseManagerList = (props) => {
         onChangePage={handleChangePage}
         localization={localization}
       />
-      <AddCaseManager modalstatus={addModal} togglestatus={toggle} />
+      <AddCaseManager
+        modalstatus={addModal}
+        togglestatus={toggle}
+        getAllCaseManagers={getAllCaseManagers}
+      />
       <EditCaseManager
         modalstatus={editModal}
         togglestatus={toggleEdit}
         casemanager={caseManager}
+        getAllCaseManagers={getAllCaseManagers}
       />
 
       <Modal isOpen={modal} toggle={onCancelDelete}>

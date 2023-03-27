@@ -12,6 +12,7 @@ import PageTitle from "../layouts/PageTitle";
 import { Link } from "react-router-dom";
 import MatButton from "@material-ui/core/Button";
 import HomeIcon from "@mui/icons-material/Home";
+import ReplyIcon from "@mui/icons-material/Reply";
 
 import {
   Row,
@@ -110,12 +111,8 @@ const ViewAssignedClients = (props) => {
                 <MatButton
                   variant="contained"
                   color="primary"
-                  startIcon={<HomeIcon />}
-                  style={{
-                    backgroundColor: "#014d88",
-                    fontWeight: "bolder",
-                    color: "fff",
-                  }}
+                  startIcon={<ReplyIcon />}
+                  style={{ backgroundColor: "rgb(153, 46, 98)", color: "#fff" }}
                 >
                   back
                 </MatButton>

@@ -112,7 +112,7 @@ const AssignedClients = (props) => {
                               fontWeight: "bolder",
                             }}
                           >
-                            Patient Dashboard
+                            View Patients
                           </span>
                         </Button>
                       </ButtonGroup>

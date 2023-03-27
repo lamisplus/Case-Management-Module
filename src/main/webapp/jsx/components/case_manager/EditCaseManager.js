@@ -13,6 +13,8 @@ import {
   Label,
   Input,
 } from "reactstrap";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import MatButton from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
 import UpdateIcon from "@mui/icons-material/Update";
@@ -60,6 +62,7 @@ const useStyles = makeStyles((theme) => ({
 
 const EditCaseManager = (props) => {
   const classes = useStyles();
+  const [contactPhone, setContactPhone] = useState("");
   //console.log(props.casemanager);
 
   const [data, setData] = useState({
@@ -82,11 +85,15 @@ const EditCaseManager = (props) => {
     });
   };
 
+  const checkPhoneNumber = (e) => {
+    setContactPhone(e);
+  };
+
   const editCaseManager = async (e) => {
     e.preventDefault();
 
     //console.log("Edit data", data);
-
+    data.phoneNumber = contactPhone;
     await axios
       .put(`${baseUrl}casemanager/update/${props.casemanager.id}`, data, {
         headers: { Authorization: `Bearer ${token}` },
@@ -99,7 +106,7 @@ const EditCaseManager = (props) => {
         console.log(err);
         toast.error("Something went wrong. Please try again... " + err.message);
       });
-
+    props.getAllCaseManagers();
     props.togglestatus();
   };
 
@@ -209,7 +216,23 @@ const EditCaseManager = (props) => {
                       <Label for="phoneNumber" className={classes.label}>
                         Phone Number <span style={{ color: "red" }}> *</span>
                       </Label>
-                      <Input
+                      <PhoneInput
+                        containerStyle={{
+                          width: "100%",
+                          border: "1px solid #014d88",
+                        }}
+                        inputStyle={{
+                          width: "100%",
+                          borderRadius: "0px",
+                          height: 44,
+                        }}
+                        country={"ng"}
+                        masks={{ ng: "...-...-....", at: "(....) ...-...." }}
+                        placeholder="(234)7099999999"
+                        value={data.phoneNumber}
+                        onChange={(e) => checkPhoneNumber(e)}
+                      />
+                      {/* <Input
                         type="text"
                         name="phoneNumber"
                         id="phoneNumber"
@@ -220,7 +243,7 @@ const EditCaseManager = (props) => {
                           border: "1px solid #014D88",
                           borderRadius: "0.2rem",
                         }}
-                      />
+                      /> */}
                     </FormGroup>
                   </Col>
                 </Row>
