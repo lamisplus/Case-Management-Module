@@ -8,6 +8,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { token, url } from "../../../api";
 import PageTitle from "../layouts/PageTitle";
+import Alert from "@mui/material/Alert";
 
 import { Link } from "react-router-dom";
 import MatButton from "@material-ui/core/Button";
@@ -87,7 +88,7 @@ const AssignCaseManager = (props) => {
   // const { patients } = location.state;
   const history = useHistory();
   const result = JSON.parse(localStorage.getItem("patients"));
-  console.log(result);
+  // console.log(result);
   const classes = useStyles();
   const [states, setStates] = useState([]);
   const [provinces, setProvinces] = useState([]);
@@ -212,6 +213,23 @@ const AssignCaseManager = (props) => {
         <Card>
           <CardBody>
             <PageTitle activeMenu="Assign " motherMenu="Case Manager" />
+            {result === null ? (
+              <>
+                <Alert
+                  severity="error"
+                  style={{
+                    width: "100%",
+                    fontSize: "18px",
+                    textAlign: "center",
+                  }}
+                >
+                  <b>No patient</b> has not been selected...
+                </Alert>
+                <br />
+              </>
+            ) : (
+              ""
+            )}
             <p style={{ textAlign: "right" }}>
               <Link color="inherit" to={{ pathname: "/" }}>
                 <MatButton
@@ -359,20 +377,24 @@ const AssignCaseManager = (props) => {
                   </FormGroup>
                 </Col>
               </Row>
-              <Button
-                variant="contained"
-                color="primary"
-                type="submit"
-                startIcon={<SendIcon />}
-                onClick={handleSubmit}
-                style={{
-                  backgroundColor: "#014d88",
-                  fontWeight: "bolder",
-                  color: "fff",
-                }}
-              >
-                Submit
-              </Button>
+              {result !== null ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  type="submit"
+                  startIcon={<SendIcon />}
+                  onClick={handleSubmit}
+                  style={{
+                    backgroundColor: "#014d88",
+                    fontWeight: "bolder",
+                    color: "fff",
+                  }}
+                >
+                  Submit
+                </Button>
+              ) : (
+                ""
+              )}
             </Form>
             <br />
             <br />

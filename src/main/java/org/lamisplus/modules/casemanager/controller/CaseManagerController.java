@@ -38,12 +38,7 @@ public class CaseManagerController {
     }
 
     @GetMapping("/list")
-    public List<CaseManagerDTO> GetConfig(){
-        boolean emptyCheck = caseManagerService.FindAll().isEmpty();
-
-        if (emptyCheck != true) {
+    public List<CaseManagerDTO> GetAllCaseManager(){
             return caseManagerService.FindAll();
-        }
-        return null;
     }
 }

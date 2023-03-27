@@ -23,6 +23,7 @@ import {
   Input,
   Label,
   Table,
+  Badge,
 } from "reactstrap";
 
 const useStyles = makeStyles((theme) => ({
@@ -103,7 +104,7 @@ const ViewAssignedClients = (props) => {
       <Container maxWidth>
         <Card>
           <CardBody>
-            <PageTitle activeMenu="View Clients " motherMenu="Case Manager" />
+            <PageTitle activeMenu="Clients " motherMenu="Case Manager" />
             <p style={{ textAlign: "right" }}>
               <Link color="inherit" to={{ pathname: "/" }}>
                 <MatButton
@@ -197,7 +198,8 @@ const ViewAssignedClients = (props) => {
                     <th>Full Name</th>
                     <th>Sex</th>
                     <th>Age</th>
-                    <th>Current Status</th>
+                    <th>Enrolled Status</th>
+                    <th></th>
                   </tr>
                   {assignedData &&
                     assignedData.patients.map((item, value) => (
@@ -207,6 +209,9 @@ const ViewAssignedClients = (props) => {
                         <td>{item.sex}</td>
                         <td>{item.age}</td>
                         <td>{item.currentStatus}</td>
+                        <td>
+                          <Badge color="info">Assigned</Badge>
+                        </td>
                       </tr>
                     ))}
                 </tbody>

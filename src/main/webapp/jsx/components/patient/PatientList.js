@@ -56,7 +56,7 @@ const PatientList = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [patientArray, setPatientArray] = useState([]);
   const [assignedClient, setAssignedClient] = useState([]);
-  const [patients, setPatients] = useState([]);
+  const [assignedClients, setAssignedClients] = useState([]);
 
   const getAssignedClient = () => {
     axios
@@ -78,20 +78,34 @@ const PatientList = (props) => {
       .catch((err) => console.error(err));
   };
 
-  const getPatients = async () => {
+  const getAllClient = async () => {
     try {
       const response = await axios.get(
-        `${url}hiv/patients?searchParam=*&pageNo=0&pageSize=100`,
+        `${url}hiv/patients/?searchParam=*&pageNo=0&pageSize=100`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setPatients(response.data.records);
-    } catch (e) {
-      toast.error("An error occurred while fetching enrolled data", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
-      setLoading(false);
+
+      if (response.data.records.length < 0) {
+      } else {
+        setAssignedClients(response.data.records);
+        localStorage.removeItem("patients");
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
+
+  const patientFilter = (assignedClients, assignedClient) => {
+    if (assignedClients && assignedClient) {
+      return assignedClients.filter((x) => {
+        return !assignedClient.some((y) => {
+          return x.hospitalNumber === y.hospitalNo;
+        });
+      });
+    }
+  };
+
+  const values = patientFilter(assignedClients, assignedClient);
 
   // const handlePatientRecords = (query) =>
   //   new Promise((resolve, reject) => {
@@ -109,8 +123,10 @@ const PatientList = (props) => {
   //             totalCount: 0,
   //           });
   //         } else {
+  //           const data = sampleFilter(result.data.records, assignedClient);
+
   //           resolve({
-  //             data: result.data.records.map((row) => ({
+  //             data: data.map((row) => ({
   //               hospitalNo: row.hospitalNumber,
   //               fullName: `${row.firstName} ${row.otherName} ${row.surname}`,
   //               sex: row.sex,
@@ -127,7 +143,7 @@ const PatientList = (props) => {
   //   });
 
   useEffect(() => {
-    getPatients();
+    getAllClient();
     getAssignedClient();
     localStorage.removeItem("patients");
   }, []);
@@ -138,9 +154,6 @@ const PatientList = (props) => {
     uniq(patient).map((item) => {
       patientArray.push(item);
     });
-
-    setPatientArray(patientArray);
-    localStorage.removeItem("patients");
     localStorage.setItem("patients", JSON.stringify(patientArray));
   };
 
@@ -154,47 +167,35 @@ const PatientList = (props) => {
     },
   };
 
-  const sampleFilter = (patients, assignedClient) => {
-    if (patients && assignedClient) {
-      return patients.filter((x) => {
-        return !assignedClient.some((y) => {
-          return x.hospitalNumber === y.hospitalNo;
-        });
-      });
-    }
-  };
-
-  const values = sampleFilter(patients, assignedClient);
-
   return (
     <div>
-      {patientArray.length !== 0 ? (
-        <Link
-          to={{
-            pathname: "/assign",
-            //state: { patients: patients },
+      {/* {patientArray && patientArray.length !== 0 ? ( */}
+      <Link
+        to={{
+          pathname: "/assign",
+          //state: { patients: patients },
+        }}
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          className="float-right mr-1"
+          startIcon={<PersonAddIcon />}
+          style={{
+            float: "right",
+            backgroundColor: "#014d88",
+            fontWeight: "bolder",
+            color: "fff",
           }}
         >
-          <Button
-            variant="contained"
-            color="primary"
-            className="float-right mr-1"
-            startIcon={<PersonAddIcon />}
-            style={{
-              float: "right",
-              backgroundColor: "#014d88",
-              fontWeight: "bolder",
-              color: "fff",
-            }}
-          >
-            <span style={{ textTransform: "capitalize" }}>
-              Assign Case Manager{" "}
-            </span>
-          </Button>
-        </Link>
-      ) : (
+          <span style={{ textTransform: "capitalize" }}>
+            Assign Case Manager{" "}
+          </span>
+        </Button>
+      </Link>
+      {/* ) : (
         ""
-      )}
+      )} */}
 
       <br />
       <br />
@@ -214,16 +215,19 @@ const PatientList = (props) => {
           // { title: "Actions", field: "actions", filtering: false },
         ]}
         isLoading={loading}
+        data={
+          values &&
+          values.map((row) => ({
+            hospitalNo: row.hospitalNumber,
+            fullName: `${row.firstName} ${row.otherName} ${row.surname}`,
+            sex: row.sex,
+            dob: row.dateOfBirth,
+            age: row.age,
+            biometricStatus: row.biometricStatus,
+            currentStatus: row.currentStatus,
+          }))
+        }
         //data={handlePatientRecords}
-        data={values.map((row, i) => ({
-          hospitalNo: row.hospitalNumber,
-          fullName: `${row.firstName} ${row.otherName} ${row.surname}`,
-          sex: row.sex,
-          dob: row.dateOfBirth,
-          age: row.age,
-          biometricStatus: row.biometricStatus,
-          currentStatus: row.currentStatus,
-        }))}
         options={{
           headerStyle: {
             backgroundColor: "#014d88",
