@@ -59,7 +59,7 @@ const Home = (props) => {
                   onSelect={(k) => setKey(k)}
                   className="mb-3"
                 >
-                  <Tab eventKey="assign-casemanager" title="Enrolled Clients">
+                  <Tab eventKey="assign-casemanager" title="Enrolled Patients">
                     <PatientList />
                   </Tab>
                   <Tab

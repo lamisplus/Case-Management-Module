@@ -52,11 +52,10 @@ const tableIcons = {
 };
 
 const PatientList = (props) => {
-  const [loading, setLoading] = useState("");
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [patientArray, setPatientArray] = useState([]);
   const [assignedClient, setAssignedClient] = useState([]);
-  const [assignedClients, setAssignedClients] = useState([]);
 
   const getAssignedClient = () => {
     axios
@@ -78,24 +77,8 @@ const PatientList = (props) => {
       .catch((err) => console.error(err));
   };
 
-  const getAllClient = async () => {
-    try {
-      const response = await axios.get(
-        `${url}hiv/patients/?searchParam=*&pageNo=0&pageSize=100`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (response.data.records.length < 0) {
-      } else {
-        setAssignedClients(response.data.records);
-        localStorage.removeItem("patients");
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   const patientFilter = (assignedClients, assignedClient) => {
+    //console.log(assignedClients, assignedClient);
     if (assignedClients && assignedClient) {
       return assignedClients.filter((x) => {
         return !assignedClient.some((y) => {
@@ -105,45 +88,7 @@ const PatientList = (props) => {
     }
   };
 
-  const values = patientFilter(assignedClients, assignedClient);
-
-  // const handlePatientRecords = (query) =>
-  //   new Promise((resolve, reject) => {
-  //     axios
-  //       .get(
-  //         `${url}hiv/patients?pageSize=${query.pageSize}&pageNo=${query.page}&searchValue=${query.search}`,
-  //         { headers: { Authorization: `Bearer ${token}` } }
-  //       )
-  //       .then((response) => response)
-  //       .then((result) => {
-  //         if (result.data.records === null) {
-  //           resolve({
-  //             data: [],
-  //             page: 0,
-  //             totalCount: 0,
-  //           });
-  //         } else {
-  //           const data = sampleFilter(result.data.records, assignedClient);
-
-  //           resolve({
-  //             data: data.map((row) => ({
-  //               hospitalNo: row.hospitalNumber,
-  //               fullName: `${row.firstName} ${row.otherName} ${row.surname}`,
-  //               sex: row.sex,
-  //               dob: row.dateOfBirth,
-  //               age: row.age,
-  //               biometricStatus: row.biometricStatus,
-  //               currentStatus: row.currentStatus,
-  //             })),
-  //             page: query.page,
-  //             totalCount: result.data.totalRecords,
-  //           });
-  //         }
-  //       });
-  //   });
-
   useEffect(() => {
-    getAllClient();
     getAssignedClient();
     localStorage.removeItem("patients");
   }, []);
@@ -157,23 +102,11 @@ const PatientList = (props) => {
     localStorage.setItem("patients", JSON.stringify(patientArray));
   };
 
-  const handleChangePage = (page) => {
-    setCurrentPage(page + 1);
-  };
-
-  const localization = {
-    pagination: {
-      labelDisplayedRows: `Page: ${currentPage}`,
-    },
-  };
-
   return (
     <div>
-      {/* {patientArray && patientArray.length !== 0 ? ( */}
       <Link
         to={{
           pathname: "/assign",
-          //state: { patients: patients },
         }}
       >
         <Button
@@ -193,15 +126,11 @@ const PatientList = (props) => {
           </span>
         </Button>
       </Link>
-      {/* ) : (
-        ""
-      )} */}
-
       <br />
       <br />
       <MaterialTable
         icons={tableIcons}
-        title="List of enrolled Clients"
+        title="List of Enrolled Patients"
         columns={[
           { title: "Hospital ID", field: "hospitalNo" },
           { title: "Full Name", field: "fullName" },
@@ -215,19 +144,46 @@ const PatientList = (props) => {
           // { title: "Actions", field: "actions", filtering: false },
         ]}
         isLoading={loading}
-        data={
-          values &&
-          values.map((row) => ({
-            hospitalNo: row.hospitalNumber,
-            fullName: `${row.firstName} ${row.otherName} ${row.surname}`,
-            sex: row.sex,
-            dob: row.dateOfBirth,
-            age: row.age,
-            biometricStatus: row.biometricStatus,
-            currentStatus: row.currentStatus,
-          }))
+        data={(query) =>
+          new Promise((resolve, reject) =>
+            axios
+              .get(
+                `${url}hiv/patients?pageSize=${query.pageSize}&pageNo=${query.page}&searchValue=${query.search}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+              )
+              .then((res) => {
+                let result = axios
+                  .get(`${url}assign/list`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                  })
+                  .then((resp) => {
+                    let arr = [];
+
+                    resp.data.forEach((x) => {
+                      x.patients.forEach((y) => {
+                        arr.push(y);
+                      });
+                    });
+
+                    let records = patientFilter(res.data.records, arr);
+
+                    resolve({
+                      data: records.map((row) => ({
+                        hospitalNo: row.hospitalNumber,
+                        fullName: `${row.firstName} ${row.otherName} ${row.surname}`,
+                        sex: row.sex,
+                        dob: row.dateOfBirth,
+                        age: row.age,
+                        biometricStatus: row.biometricStatus,
+                        currentStatus: row.currentStatus,
+                      })),
+                      page: query.page,
+                      totalCount: res.data.totalRecords,
+                    });
+                  });
+              })
+          )
         }
-        //data={handlePatientRecords}
         options={{
           headerStyle: {
             backgroundColor: "#014d88",
@@ -241,15 +197,17 @@ const PatientList = (props) => {
           },
           selection: true,
           filtering: false,
+          sorting: false,
           exportButton: false,
           searchFieldAlignment: "left",
+          searchAutoFocus: true,
+          searchFieldVariant: "filled",
           pageSizeOptions: [10, 20, 50, 100],
           pageSize: 10,
+          showFirstLastPageButtons: false,
           debounceInterval: 400,
         }}
         onSelectionChange={(rows) => handlePatientChanges(rows)}
-        onChangePage={handleChangePage}
-        localization={localization}
       />
     </div>
   );
