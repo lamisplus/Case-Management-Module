@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
 
 const EditCaseManager = (props) => {
   const classes = useStyles();
-  const [contactPhone, setContactPhone] = useState("");
+
   //console.log(props.casemanager);
 
   const [data, setData] = useState({
@@ -72,6 +72,8 @@ const EditCaseManager = (props) => {
     sex: props.casemanager?.sex,
     phoneNumber: props.casemanager?.phoneNumber,
   });
+
+  const [contactPhone, setContactPhone] = useState(data.phoneNumber);
 
   useEffect(() => {
     setData(props.casemanager);
@@ -92,8 +94,8 @@ const EditCaseManager = (props) => {
   const editCaseManager = async (e) => {
     e.preventDefault();
 
-    //console.log("Edit data", data);
-    data.phoneNumber = contactPhone;
+    console.log("Edit data", contactPhone);
+    data.phoneNumber = contactPhone ?? data.phoneNumber;
     await axios
       .put(`${baseUrl}casemanager/update/${props.casemanager.id}`, data, {
         headers: { Authorization: `Bearer ${token}` },

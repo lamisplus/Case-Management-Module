@@ -90,6 +90,7 @@ const PatientList = (props) => {
 
   useEffect(() => {
     getAssignedClient();
+    localStorage.removeItem("patient");
     localStorage.removeItem("patients");
   }, []);
 

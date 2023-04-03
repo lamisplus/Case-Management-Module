@@ -284,7 +284,7 @@ const CaseManagerList = (props) => {
             firstName: row.firstName,
             lastName: row.lastName,
             gender: row.sex,
-            phoneNumber: row.phoneNumber,
+            phoneNumber: `+${row.phoneNumber}`,
             actions: (
               <>
                 <SplitActionButton actions={actionItems(row)} />

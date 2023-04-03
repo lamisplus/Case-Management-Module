@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Slf4j
@@ -60,6 +61,40 @@ public class AssignCaseMangerService {
     public List<AssignCaseManager> findAll()
     {
         return assignCaseManagerRepository.findAll();
+    }
+
+    public AssignCaseManager reassign(AssignCaseManagerDTO assignCaseManagerDTO) {
+        try {
+            AssignCaseManager assignCaseManager = new AssignCaseManager();
+            assignCaseManager.setAssignDate(assignCaseManagerDTO.getAssignDate());
+            assignCaseManager.setCaseManager(assignCaseManagerDTO.getCaseManager());
+            assignCaseManager.setState(assignCaseManagerDTO.getState());
+            assignCaseManager.setLga(assignCaseManagerDTO.getLga());
+            AssignCaseManager createdCasemanger = assignCaseManagerRepository.save(assignCaseManager);
+
+            List<AssignedPatient> assignedPatients = new ArrayList<>();
+
+            for(AssignedPatient patient: assignCaseManagerDTO.getPatients()) {
+                assignedPatients.add(dtoToEntity(patient, createdCasemanger));
+
+                AssignedPatient oldPatient = asignPatientRepository.findById(patient.getId()).orElseThrow(() -> new NoSuchElementException(
+                        "Patient not found"
+                ));
+
+                asignPatientRepository.deleteById(oldPatient.getId());
+            }
+
+            asignPatientRepository.saveAll(assignedPatients);
+
+            return createdCasemanger;
+
+        }catch (Exception ignored) {
+            return null;
+        }
+    }
+    public String delete(Integer patienrId) {
+        asignPatientRepository.deleteById(patienrId);
+        return "Patient unassigned successfully";
     }
 
 }

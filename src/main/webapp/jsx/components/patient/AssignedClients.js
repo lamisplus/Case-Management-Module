@@ -54,108 +54,87 @@ const AssignedClients = (props) => {
   const [loading, setLoading] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [patientArray, setPatientArray] = useState([]);
+  const [totalPage, setTotalPage] = useState([]);
 
-  const handlePatientRecords = (query) =>
-    new Promise((resolve, reject) => {
-      axios
-        .get(`${url}assign/list`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => response)
-        .then((result) => {
-          if (result.data === null) {
-            resolve({
-              data: [],
-              page: 0,
-              totalCount: 0,
-            });
-          } else {
-            resolve({
-              data: result.data.map((d) => ({
-                assignDate: d.assignDate?.replace("T", " "),
-                caseManager: d.caseManager,
-                state: d.state?.split(" ")[1],
-                lga: d.lga,
-                clients: d.patients.length,
-                actions: (
-                  <>
-                    <Link
-                      to={{
-                        pathname: "/clients",
-                        state: { clients: d },
-                      }}
-                    >
-                      <ButtonGroup
-                        variant="contained"
-                        aria-label="split button"
-                        style={{
-                          backgroundColor: "rgb(153, 46, 98)",
-                          height: "30px",
-                          width: "215px",
-                        }}
-                        size="large"
-                      >
-                        <Button
-                          color="primary"
-                          size="small"
-                          aria-label="select merge strategy"
-                          aria-haspopup="menu"
-                          style={{ backgroundColor: "rgb(153, 46, 98)" }}
-                        >
-                          <MdDashboard size="20" color="#fff" />
-                        </Button>
-                        <Button style={{ backgroundColor: "rgb(153, 46, 98)" }}>
-                          <span
-                            style={{
-                              fontSize: "12px",
-                              color: "#fff",
-                              fontWeight: "bolder",
-                            }}
-                          >
-                            View Patients
-                          </span>
-                        </Button>
-                      </ButtonGroup>
-                    </Link>
-                  </>
-                ),
-              })),
-              page: query.page,
-              totalCount: result.data.length,
-            });
-          }
-        });
-    });
-
-  useEffect(() => {}, []);
-
-  const handleChangePage = (page) => {
-    setCurrentPage(page + 1);
+  const getCaseManagers = async () => {
+    await axios
+      .get(`${url}assign/list`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => setTotalPage(response.data));
   };
 
-  const localization = {
-    pagination: {
-      labelDisplayedRows: `Page: ${currentPage}`,
-    },
-  };
+  useEffect(() => {
+    getCaseManagers();
+  }, []);
 
   return (
     <div>
       <br />
       <MaterialTable
         icons={tableIcons}
-        title="Case managers assigned to clients"
+        title="Case managers assigned to patients"
         columns={[
           { title: "Assigned Date", field: "assignDate" },
           { title: "Case Manager", field: "caseManager" },
           { title: "State", field: "state" },
           { title: "LGA", field: "lga" },
-          { title: "Clients", field: "clients" },
+          { title: "Patients", field: "patients" },
           { title: "Actions", field: "actions", filtering: false },
         ]}
         isLoading={loading}
-        // data={handlePulledData}
-        data={handlePatientRecords}
+        data={
+          totalPage &&
+          totalPage.map((d) => ({
+            assignDate: d.assignDate?.replace("T", " "),
+            caseManager: d.caseManager,
+            state: d.state?.split(" ")[1],
+            lga: d.lga,
+            patients: d.patients.length,
+            actions: (
+              <>
+                <Link
+                  to={{
+                    pathname: "/clients",
+                    state: { clients: d },
+                  }}
+                >
+                  <ButtonGroup
+                    variant="contained"
+                    aria-label="split button"
+                    style={{
+                      backgroundColor: "rgb(153, 46, 98)",
+                      height: "30px",
+                      width: "215px",
+                    }}
+                    size="large"
+                  >
+                    <Button
+                      color="primary"
+                      size="small"
+                      aria-label="select merge strategy"
+                      aria-haspopup="menu"
+                      style={{ backgroundColor: "rgb(153, 46, 98)" }}
+                    >
+                      <MdDashboard size="20" color="#fff" />
+                    </Button>
+                    <Button style={{ backgroundColor: "rgb(153, 46, 98)" }}>
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          color: "#fff",
+                          fontWeight: "bolder",
+                        }}
+                      >
+                        View Patients
+                      </span>
+                    </Button>
+                  </ButtonGroup>
+                </Link>
+              </>
+            ),
+          }))
+        }
         options={{
           headerStyle: {
             backgroundColor: "#014d88",
@@ -167,16 +146,15 @@ const AssignedClients = (props) => {
             width: "200%",
             margingLeft: "250px",
           },
-          selection: false,
           filtering: false,
+          sorting: true,
           exportButton: false,
           searchFieldAlignment: "left",
           pageSizeOptions: [10, 20, 50, 100],
           pageSize: 10,
+          showFirstLastPageButtons: false,
           debounceInterval: 400,
         }}
-        onChangePage={handleChangePage}
-        localization={localization}
       />
     </div>
   );
