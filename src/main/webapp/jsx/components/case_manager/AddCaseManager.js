@@ -72,10 +72,29 @@ const AddCaseManager = (props) => {
     lastName: "",
     sex: "",
     phoneNumber: "",
+    facilityId: "",
   });
-
+  const [facilities, setFacilities] = useState([]);
   const [contactPhone, setContactPhone] = useState("");
   const [errors, setErrors] = useState({});
+
+  const Facilities = () => {
+    axios
+      .get(`${baseUrl}account`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        console.log(response.data);
+        setFacilities(response.data.applicationUserOrganisationUnits);
+      })
+      .catch((error) => {
+        //console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    Facilities();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -281,6 +300,34 @@ const AddCaseManager = (props) => {
                       ) : (
                         ""
                       )}
+                    </FormGroup>
+                  </Col>
+                  <Col md={6}>
+                    <FormGroup>
+                      <Label>
+                        Facility <span style={{ color: "red" }}> *</span>
+                      </Label>
+                      <select
+                        className="form-control"
+                        name="facilityId"
+                        id="facilityId"
+                        value={data.facilityId}
+                        onChange={handleInputChange}
+                        style={{
+                          border: "1px solid #014D88",
+                          borderRadius: "0.2rem",
+                        }}
+                      >
+                        <option value={""}></option>
+                        {facilities.map((value) => (
+                          <option
+                            key={value.id}
+                            value={value.organisationUnitId}
+                          >
+                            {value.organisationUnitName}
+                          </option>
+                        ))}
+                      </select>
                     </FormGroup>
                   </Col>
                 </Row>

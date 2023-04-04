@@ -29,6 +29,8 @@ public class CaseManager {
     private String sex;
     @Column(name = "phone_number")
     private String phoneNumber;
+    @Column(name = "facility_id")
+    private Integer facilityId;
     @Column(name = "create_date")
     private LocalDateTime createDate;
 }

@@ -61,6 +61,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const EditCaseManager = (props) => {
+  const [facilities, setFacilities] = useState([]);
   const classes = useStyles();
 
   //console.log(props.casemanager);
@@ -71,7 +72,26 @@ const EditCaseManager = (props) => {
     lastName: props.casemanager?.lastName,
     sex: props.casemanager?.sex,
     phoneNumber: props.casemanager?.phoneNumber,
+    facilityId: props.casemanager?.facilityId,
   });
+
+  const Facilities = () => {
+    axios
+      .get(`${baseUrl}account`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        console.log(response.data);
+        setFacilities(response.data.applicationUserOrganisationUnits);
+      })
+      .catch((error) => {
+        //console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    Facilities();
+  }, []);
 
   const [contactPhone, setContactPhone] = useState(data.phoneNumber);
 
@@ -234,18 +254,34 @@ const EditCaseManager = (props) => {
                         value={data.phoneNumber}
                         onChange={(e) => checkPhoneNumber(e)}
                       />
-                      {/* <Input
-                        type="text"
-                        name="phoneNumber"
-                        id="phoneNumber"
-                        value={data.phoneNumber}
-                        onChange={handleInputChange}
+                    </FormGroup>
+                  </Col>
+                  <Col md={6}>
+                    <FormGroup>
+                      <Label>
+                        Facility <span style={{ color: "red" }}> *</span>
+                      </Label>
+                      <select
                         className="form-control"
+                        name="facilityId"
+                        id="facilityId"
+                        value={data.facilityId}
+                        onChange={handleInputChange}
                         style={{
                           border: "1px solid #014D88",
                           borderRadius: "0.2rem",
                         }}
-                      /> */}
+                      >
+                        <option value={""}></option>
+                        {facilities.map((value) => (
+                          <option
+                            key={value.id}
+                            value={value.organisationUnitId}
+                          >
+                            {value.organisationUnitName}
+                          </option>
+                        ))}
+                      </select>
                     </FormGroup>
                   </Col>
                 </Row>
