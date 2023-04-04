@@ -47,5 +47,6 @@ public interface PatientListDTO {
 	String getAddress();
 	
 	String getPhone();
+	String getTargetGroup();
 	
 }
