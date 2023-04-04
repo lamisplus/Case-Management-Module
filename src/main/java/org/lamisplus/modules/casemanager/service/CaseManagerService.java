@@ -29,6 +29,7 @@ public class CaseManagerService {
         caseManagerobj.setLastName(caseManagerRequest.getLastName());
         caseManagerobj.setSex(caseManagerRequest.getSex());
         caseManagerobj.setPhoneNumber(caseManagerRequest.getPhoneNumber());
+        caseManagerobj.setFacilityId(caseManagerRequest.getFacilityId());
         caseManagerobj.setUuid(UUID.randomUUID().toString());
         caseManagerobj.setCreateDate(LocalDateTime.now());
 
@@ -48,6 +49,7 @@ public class CaseManagerService {
                 existingCaseManager.setLastName(caseManagerRequest.getLastName());
                 existingCaseManager.setSex(caseManagerRequest.getSex());
                 existingCaseManager.setPhoneNumber(caseManagerRequest.getPhoneNumber());
+                existingCaseManager.setFacilityId(caseManagerRequest.getFacilityId());
 
                 return caseManagerRepository.save(existingCaseManager);
             }else {

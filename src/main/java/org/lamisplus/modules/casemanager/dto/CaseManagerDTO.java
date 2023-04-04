@@ -19,5 +19,6 @@ public class CaseManagerDTO {
     private String sex;
     private String phoneNumber;
     private String uuid;
+    private Integer facilityId;
     private LocalDateTime createDate;
 }
