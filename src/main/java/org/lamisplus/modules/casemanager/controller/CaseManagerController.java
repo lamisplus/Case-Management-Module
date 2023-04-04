@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lamisplus.modules.casemanager.domain.CaseManager;
 import org.lamisplus.modules.casemanager.dto.CaseManagerDTO;
 import org.lamisplus.modules.casemanager.dto.CaseManagerRequest;
+import org.lamisplus.modules.casemanager.dto.PatientListDTO;
 import org.lamisplus.modules.casemanager.service.CaseManagerService;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,18 @@ public class CaseManagerController {
         return caseManagerService.Update(caseManagerRequest, id);
     }
 
+    @GetMapping("/patients/{facilityId}")
+    public List<PatientListDTO> GetPatientsForCaseManagerAssignment(
+            @PathVariable("facilityId") Long facilityId,
+            @RequestParam(value = "stateOfResidence", required = false)  String stateOfResidence,
+            @RequestParam(value = "lgaOfResidence", required = false)  String lgaOfResidence,
+            @RequestParam(value = "gender", required = false)  String gender,
+            @RequestParam(value = "targetGroup", required = false)  String targetGroup
+    ){
+        return null;
+    }
+    
+    
     @GetMapping("/get/{id}")
     public CaseManagerDTO GetCaseManagerById(@PathVariable int id){
         return caseManagerService.FindById(id);
