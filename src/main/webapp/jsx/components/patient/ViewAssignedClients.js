@@ -334,8 +334,8 @@ const ViewAssignedClients = (props) => {
                   { title: "Sex", field: "sex" },
                   { title: "DOB", field: "dob" },
                   { title: "Age", field: "age" },
-                  { title: "Biometrics", field: "biometricStatus" },
-                  { title: "Enrolled Status", field: "currentStatus" },
+                  // { title: "Biometrics", field: "biometricStatus" },
+                  // { title: "Enrolled Status", field: "currentStatus" },
                   { title: "", field: "assigned" },
                   { title: "Action", field: "actions" },
                 ]}
@@ -349,8 +349,8 @@ const ViewAssignedClients = (props) => {
                     sex: item.sex,
                     dob: item.dob,
                     age: item.age,
-                    biometricStatus: item.biometricStatus,
-                    currentStatus: item.currentStatus,
+                    // biometricStatus: item.biometricStatus,
+                    // currentStatus: item.currentStatus,
                     assigned: <Badge color="info">Assigned</Badge>,
                     actions: (
                       <>

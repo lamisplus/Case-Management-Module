@@ -54,6 +54,7 @@ public class AssignCaseMangerService {
         assignedPatient.setBiometricStatus(patient.getBiometricStatus());
         assignedPatient.setFullName(patient.getFullName());
         assignedPatient.setFacilityId(patient.getFacilityId());
+        assignedPatient.setPersonUuid(patient.getPersonUuid());
         assignedPatient.setCaseManagerAssignId(assignCaseManager.getId());
         return assignedPatient;
     }

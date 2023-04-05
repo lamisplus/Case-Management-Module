@@ -174,8 +174,8 @@ const AssignCaseManager = (props) => {
     temp.caseManager = assignedData.caseManager
       ? ""
       : "Case manager is required.";
-    temp.state = assignedData.state ? "" : "State is required.";
-    temp.lga = assignedData.lga ? "" : "LGA is required.";
+    // temp.state = assignedData.state ? "" : "State is required.";
+    // temp.lga = assignedData.lga ? "" : "LGA is required.";
     setErrors({
       ...temp,
     });
@@ -186,6 +186,10 @@ const AssignCaseManager = (props) => {
     e.preventDefault();
 
     if (validateInputs()) {
+      const filterData = JSON.parse(localStorage.getItem("filterData"));
+
+      assignedData.state = filterData.state;
+      assignedData.lga = filterData.lga;
       console.log(assignedData);
 
       await axios
@@ -308,7 +312,7 @@ const AssignCaseManager = (props) => {
                   </FormGroup>
                 </Col>
               </Row>
-              <Row>
+              {/* <Row>
                 <Col>
                   <FormGroup>
                     <Label className={classes.label}>
@@ -372,7 +376,7 @@ const AssignCaseManager = (props) => {
                     )}
                   </FormGroup>
                 </Col>
-              </Row>
+              </Row> */}
               {result !== null ? (
                 <Button
                   variant="contained"
@@ -402,7 +406,7 @@ const AssignCaseManager = (props) => {
                     <th>Full Name</th>
                     <th>Sex</th>
                     <th>Age</th>
-                    <th>Current Status</th>
+                    {/* <th>Current Status</th> */}
                   </tr>
                   {patientAssigned &&
                     patientAssigned.map((item, value) => (
@@ -411,7 +415,7 @@ const AssignCaseManager = (props) => {
                         <td>{item.fullName}</td>
                         <td>{item.sex}</td>
                         <td>{item.age}</td>
-                        <td>{item.currentStatus}</td>
+                        {/* <td>{item.currentStatus}</td> */}
                       </tr>
                     ))}
                 </tbody>

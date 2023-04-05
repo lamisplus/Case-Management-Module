@@ -77,8 +77,8 @@ const AssignedClients = (props) => {
         columns={[
           { title: "Assigned Date", field: "assignDate" },
           { title: "Case Manager", field: "caseManager" },
-          { title: "State", field: "state" },
-          { title: "LGA", field: "lga" },
+          // { title: "State", field: "state" },
+          // { title: "LGA", field: "lga" },
           { title: "Patients", field: "patients" },
           { title: "Actions", field: "actions", filtering: false },
         ]}
@@ -88,8 +88,8 @@ const AssignedClients = (props) => {
           totalPage.map((d) => ({
             assignDate: d.assignDate?.replace("T", " "),
             caseManager: d.caseManager,
-            state: d.state?.split(" ")[1],
-            lga: d.lga,
+            // state: d.state?.split(" ")[1],
+            // lga: d.lga,
             patients: d.patients.length,
             actions: (
               <>

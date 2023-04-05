@@ -109,11 +109,15 @@ const useStyles = makeStyles((theme) => ({
 
 const PatientList = (props) => {
   const classes = useStyles();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [states, setStates] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [facilities, setFacilities] = useState([]);
   const [assignedClient, setAssignedClient] = useState([]);
+  const [kP, setKP] = useState([]);
+  const [pregnancyStatus, setPregnancyStatus] = useState([]);
+  const [patients, setPatients] = useState([]);
+  const [filtered, setFiltered] = useState(false);
   const [filterData, setFilterData] = useState({
     facilityId: "",
     sex: "",
@@ -121,6 +125,30 @@ const PatientList = (props) => {
     lga: "",
     targetgroup: "",
   });
+
+  const KP = () => {
+    axios
+      .get(`${url}application-codesets/v2/TARGET_GROUP`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        setKP(response.data);
+      })
+      .catch((error) => {});
+  };
+
+  const PregnancyStatus = () => {
+    axios
+      .get(`${url}application-codesets/v2/PREGNANCY_STATUS`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        setPregnancyStatus(response.data);
+      })
+      .catch((error) => {
+        //console.log(error);
+      });
+  };
 
   const Facilities = () => {
     axios
@@ -203,24 +231,39 @@ const PatientList = (props) => {
       .catch((err) => console.error(err));
   };
 
-  const patientFilter = (assignedClients, assignedClient) => {
-    //console.log(assignedClients, assignedClient);
-    if (assignedClients && assignedClient) {
-      return assignedClients.filter((x) => {
-        return !assignedClient.some((y) => {
-          return x.hospitalNumber === y.hospitalNo;
-        });
-      });
-    }
-  };
-
   useEffect(() => {
     getStates();
     Facilities();
+    KP();
+    PregnancyStatus();
     getAssignedClient();
     localStorage.removeItem("patient");
     localStorage.removeItem("patients");
+    localStorage.removeItem("filterData");
   }, []);
+
+  const getPatient = () => {
+    setFiltered(true);
+
+    let state = filterData.state?.split(" ")[1];
+    //console.log(state);
+    localStorage.setItem("filterData", JSON.stringify(filterData));
+    axios
+      .get(
+        `${url}casemanager/patients/${filterData.facilityId}?stateOfResidence=${
+          state ?? ""
+        }&lgaOfResidence=${filterData.lga}&gender=${
+          filterData.sex
+        }&targetGroup=${filterData.targetgroup}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .then((response) => {
+        //console.log(response.data);
+        setLoading(false);
+        setPatients(response.data);
+      })
+      .catch((error) => console.log(error));
+  };
 
   const handlePatientChanges = (patient) => {
     let patientArray = [];
@@ -347,26 +390,32 @@ const PatientList = (props) => {
               onChange={handleInputChange}
             >
               <option>Select Target Group</option>
-              <option>Male</option>
-              <option>Female</option>
+              {(filterData.sex === "Female" || filterData.sex === "female") && (
+                <>
+                  {kP
+                    .filter((x) => x.display !== "MSM")
+                    .map((value) => (
+                      <option key={value.id} value={value.id}>
+                        {value.display}
+                      </option>
+                    ))}
+                </>
+              )}
+              {(filterData.sex === "Male" || filterData.sex === "male") && (
+                <>
+                  {kP
+                    .filter((x) => x.display !== "FSW")
+                    .map((value) => (
+                      <option key={value.id} value={value.id}>
+                        {value.display}
+                      </option>
+                    ))}
+                </>
+              )}
             </select>
           </FormGroup>
         </Col>
       </Row>
-      <Button
-        variant="contained"
-        color="primary"
-        className="float-right mr-1"
-        startIcon={<PersonSearchIcon />}
-        style={{
-          float: "right",
-          backgroundColor: "#014d88",
-          fontWeight: "bolder",
-          color: "fff",
-        }}
-      >
-        <span style={{ textTransform: "capitalize" }}>Search </span>
-      </Button>{" "}
       <Link
         to={{
           pathname: "/assign",
@@ -387,8 +436,23 @@ const PatientList = (props) => {
           <span style={{ textTransform: "capitalize" }}>
             Assign Case Manager{" "}
           </span>
-        </Button>
+        </Button>{" "}
       </Link>
+      <Button
+        variant="contained"
+        color="primary"
+        className="float-right mr-1"
+        startIcon={<PersonSearchIcon />}
+        style={{
+          float: "right",
+          backgroundColor: "rgb(153, 46, 98)",
+          fontWeight: "bolder",
+          color: "fff",
+        }}
+        onClick={getPatient}
+      >
+        <span style={{ textTransform: "capitalize" }}>Search Patients</span>
+      </Button>
       <br />
       <br />
       <MaterialTable
@@ -400,55 +464,84 @@ const PatientList = (props) => {
           { title: "Sex", field: "sex" },
           { title: "DOB", field: "dob" },
           { title: "Age", field: "age" },
-          { title: "Biometrics", field: "biometricStatus" },
-          { title: "Current Status", field: "currentStatus" },
-          //{ title: "Facility", field: "facilityId" },
-          // { title: "Date Registered", field: "dateOfRegistration" },
+          { title: "State", field: "state" },
+          { title: "LGA", field: "lga" },
+          { title: "Phone", field: "phone" },
+          // { title: "Residential State", field: "residentialState" },
+          // { title: "Residential Lga", field: "residentialLga" },
+          // { title: "Target Group", field: "targetgroup" },
+          { title: "Facility", field: "facilityId", hidden: true },
+          { title: "PersonUuid", field: "personUuid", hidden: true },
+          { title: "DatimId", field: "datimId", hidden: true },
           // { title: "Actions", field: "actions", filtering: false },
         ]}
-        isLoading={loading}
-        data={(query) =>
-          new Promise((resolve, reject) =>
-            axios
-              .get(
-                `${url}hiv/patients?pageSize=${query.pageSize}&pageNo=${query.page}&searchValue=${query.search}`,
-                { headers: { Authorization: `Bearer ${token}` } }
-              )
-              .then((res) => {
-                let result = axios
-                  .get(`${url}assign/list`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                  })
-                  .then((resp) => {
-                    let arr = [];
-
-                    resp.data.forEach((x) => {
-                      x.patients.forEach((y) => {
-                        arr.push(y);
-                      });
-                    });
-
-                    let records = patientFilter(res.data.records, arr);
-
-                    resolve({
-                      data: records.map((row) => ({
-                        hospitalNo: row.hospitalNumber,
-                        fullName: `${row.firstName} ${
-                          row.otherName === null ? " " : row.otherName
-                        } ${row.surname}`,
-                        sex: row.sex,
-                        dob: row.dateOfBirth,
-                        age: row.age,
-                        biometricStatus: row.biometricStatus,
-                        currentStatus: row.currentStatus,
-                      })),
-                      page: query.page,
-                      totalCount: res.data.totalRecords,
-                    });
-                  });
-              })
-          )
+        //isLoading={loading}
+        data={
+          patients &&
+          patients.map((row) => ({
+            hospitalNo: row.hospitalNumber,
+            fullName: `${row.firstName} ${
+              row.otherName === null ? " " : row.otherName
+            } ${row.surname}`,
+            sex: row.gender,
+            dob: row.dateOfBirth,
+            age: row.age,
+            state: row.state,
+            lga: row.lga,
+            phone: row.phone,
+            // residentialState: row.residentialState,
+            // residentialLga: row.residentialLga,
+            // biometricStatus: row.biometricStatus,
+            // targetGroup: row.targetGroup,
+            facilityId: row.facilityId,
+            personUuid: row.personUuid,
+            datimId: row.datimId,
+          }))
         }
+        // data={(query) =>
+        //   new Promise((resolve, reject) =>
+        //     axios
+        //       .get(
+        //         `${url}hiv/patients?pageSize=${query.pageSize}&pageNo=${query.page}&searchValue=${query.search}`,
+        //         { headers: { Authorization: `Bearer ${token}` } }
+        //       )
+        //       .then((res) => {
+        //         let result = axios
+        //           .get(`${url}assign/list`, {
+        //             headers: { Authorization: `Bearer ${token}` },
+        //           })
+        //           .then((resp) => {
+        //             let arr = [];
+
+        //             resp.data.forEach((x) => {
+        //               x.patients.forEach((y) => {
+        //                 arr.push(y);
+        //               });
+        //             });
+
+        //             let records = patientFilter(res.data.records, arr);
+
+        //             resolve({
+        //               data:
+        //                 patients &&
+        //                 patients.map((row) => ({
+        //                   hospitalNo: row.hospitalNumber,
+        //                   fullName: `${row.firstName} ${
+        //                     row.otherName === null ? " " : row.otherName
+        //                   } ${row.surname}`,
+        //                   sex: row.sex,
+        //                   dob: row.dateOfBirth,
+        //                   age: row.age,
+        //                   biometricStatus: row.biometricStatus,
+        //                   currentStatus: row.currentStatus,
+        //                 })),
+        //               page: query.page,
+        //               totalCount: res.data.totalRecords,
+        //             });
+        //           });
+        //       })
+        //   )
+        // }
         options={{
           headerStyle: {
             backgroundColor: "#014d88",
