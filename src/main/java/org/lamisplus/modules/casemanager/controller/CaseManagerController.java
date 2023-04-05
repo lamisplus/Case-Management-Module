@@ -7,6 +7,7 @@ import org.lamisplus.modules.casemanager.dto.CaseManagerDTO;
 import org.lamisplus.modules.casemanager.dto.CaseManagerRequest;
 import org.lamisplus.modules.casemanager.dto.PatientListDTO;
 import org.lamisplus.modules.casemanager.service.CaseManagerService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,14 +30,14 @@ public class CaseManagerController {
     }
 
     @GetMapping("/patients/{facilityId}")
-    public List<PatientListDTO> GetPatientsForCaseManagerAssignment(
+    public ResponseEntity<List<PatientListDTO>> GetPatientsForCaseManagerAssignment(
             @PathVariable("facilityId") Long facilityId,
-            @RequestParam(value = "stateOfResidence", required = false)  String stateOfResidence,
-            @RequestParam(value = "lgaOfResidence", required = false)  String lgaOfResidence,
-            @RequestParam(value = "gender", required = false)  String gender,
-            @RequestParam(value = "targetGroup", required = false)  String targetGroup
-    ){
-        return null;
+            @RequestParam(value = "stateOfResidence", defaultValue = "", required = false)  String stateOfResidence,
+            @RequestParam(value = "lgaOfResidence",  defaultValue = "", required = false)  String lgaOfResidence,
+            @RequestParam(value = "gender",  defaultValue = "", required = false)  String gender,
+            @RequestParam(value = "targetGroup",  defaultValue = "", required = false)  String targetGroup){
+        System.out.println(" state default value : " +stateOfResidence);
+        return  ResponseEntity.ok(caseManagerService.getPatientListDTOS(facilityId, stateOfResidence, lgaOfResidence,gender,targetGroup));
     }
     
     
