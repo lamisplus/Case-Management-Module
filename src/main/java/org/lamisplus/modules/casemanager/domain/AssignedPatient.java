@@ -28,13 +28,21 @@ public class AssignedPatient {
     @Column(name = "age")
     private String age;
     @Column(name = "facility_Id")
-    private String facilityId;
+    private Long facilityId;
     @Column(name = "biometric_status")
     private String biometricStatus;
     @Column(name = "person_uuid")
     private String personUuid;
     @Column(name = "date_of_birth")
     private String dob;
-    @Column(name = "case_manager_assigned_Id")
-    private Integer caseManagerAssignId;
+    @Column(name = "phone_number")
+    private String phone;
+    @Column(name = "state")
+    private String state;
+    @Column(name = "lga")
+    private String lga;
+    @Column(name = "case_manager_Id")
+    private Integer caseManagerId;
+    @Column(name = "create_date")
+    private LocalDateTime createDate;
 }

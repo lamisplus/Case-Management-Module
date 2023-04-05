@@ -9,5 +9,5 @@ public class CaseManagerRequest {
     private String lastName;
     private String sex;
     private String phoneNumber;
-    private Integer facilityId;
+    private Long facilityId;
 }

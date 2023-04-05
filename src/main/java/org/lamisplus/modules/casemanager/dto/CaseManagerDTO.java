@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.lamisplus.modules.casemanager.domain.AssignedPatient;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -19,6 +21,7 @@ public class CaseManagerDTO {
     private String sex;
     private String phoneNumber;
     private String uuid;
-    private Integer facilityId;
+    private Long facilityId;
     private LocalDateTime createDate;
+    private List<AssignedPatient> patients;
 }

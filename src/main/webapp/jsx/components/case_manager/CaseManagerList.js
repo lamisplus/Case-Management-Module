@@ -4,6 +4,7 @@ import MaterialTable from "material-table";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 import AddCaseManager from "./AddCaseManager";
 import EditCaseManager from "./EditCaseManager";
@@ -204,8 +205,8 @@ const CaseManagerList = (props) => {
         type: "link",
         icon: <FaEye size="22" />,
         to: {
-          pathname: "/print-manifest",
-          state: { sampleObj: row, permissions: permissions },
+          pathname: "/clients",
+          state: { caseManager: row },
         },
       },
       {
@@ -232,6 +233,15 @@ const CaseManagerList = (props) => {
           state: { patientObj: row },
         },
       },
+      {
+        name: " View Patients",
+        type: "link",
+        icon: <FaEye size="20" color="rgb(4, 196, 217)" />,
+        to: {
+          pathname: "/clients",
+          state: { caseManager: row },
+        },
+      },
     ];
   };
 
@@ -247,6 +257,22 @@ const CaseManagerList = (props) => {
 
   return (
     <>
+      <Button
+        variant="contained"
+        color="primary"
+        className="float-right mr-1"
+        startIcon={<RefreshIcon />}
+        onClick={getAllCaseManagers}
+        style={{
+          float: "right",
+          backgroundColor: "#014d88",
+          fontWeight: "bolder",
+          color: "fff",
+          marginLeft: "10px",
+        }}
+      >
+        <span style={{ textTransform: "capitalize" }}>Refresh </span>
+      </Button>
       <Button
         variant="contained"
         color="primary"
@@ -274,6 +300,7 @@ const CaseManagerList = (props) => {
           { title: "Last Name", field: "lastName" },
           { title: "Gender", field: "gender" },
           { title: "Phone Number", field: "phoneNumber" },
+          { title: "Total Patients", field: "patients" },
           { title: "Action", field: "actions" },
         ]}
         isLoading={loading}
@@ -285,6 +312,7 @@ const CaseManagerList = (props) => {
             lastName: row.lastName,
             gender: row.sex,
             phoneNumber: `+${row.phoneNumber}`,
+            patients: row.patients.length,
             actions: (
               <>
                 <SplitActionButton actions={actionItems(row)} />
@@ -325,7 +353,6 @@ const CaseManagerList = (props) => {
         casemanager={caseManager}
         getAllCaseManagers={getAllCaseManagers}
       />
-
       <Modal isOpen={modal} toggle={onCancelDelete}>
         <ModalHeader toggle={onCancelDelete}>Delete Case Manager</ModalHeader>
         <ModalBody>Are you sure you want to delete this record?</ModalBody>

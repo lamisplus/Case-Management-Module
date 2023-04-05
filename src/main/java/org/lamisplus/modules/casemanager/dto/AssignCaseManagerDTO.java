@@ -14,10 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AssignCaseManagerDTO {
-    private String assignDate;
-    private String caseManager;
-    private String state;
-    private String lga;
+    private Integer caseManagerId;
     private List<AssignedPatient> patients;
 
 }

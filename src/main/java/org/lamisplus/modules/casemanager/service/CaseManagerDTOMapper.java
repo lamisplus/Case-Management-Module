@@ -20,6 +20,8 @@ public class CaseManagerDTOMapper implements Function<CaseManager, CaseManagerDT
                 casemanager.getPhoneNumber(),
                 casemanager.getUuid(),
                 casemanager.getFacilityId(),
-                casemanager.getCreateDate());
+                casemanager.getCreateDate(),
+                casemanager.getPatients()
+        );
     }
 }

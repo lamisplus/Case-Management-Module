@@ -59,15 +59,15 @@ const Home = (props) => {
                   onSelect={(k) => setKey(k)}
                   className="mb-3"
                 >
-                  <Tab eventKey="assign-casemanager" title="Enrolled Patients">
+                  <Tab eventKey="assign-casemanager" title="Patients">
                     <PatientList />
                   </Tab>
-                  <Tab
+                  {/* <Tab
                     eventKey="assigned-casemanager"
                     title="Assigned Managers"
                   >
                     <AssignedClients />
-                  </Tab>
+                  </Tab> */}
                   <Tab eventKey="case-manager" title="Case Managers">
                     <CaseManagerList />
                   </Tab>

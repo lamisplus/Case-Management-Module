@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback, useState, forwardRef } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import Button from "@material-ui/core/Button";
 import uniq from "lodash/uniq";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
@@ -118,6 +119,12 @@ const PatientList = (props) => {
   const [pregnancyStatus, setPregnancyStatus] = useState([]);
   const [patients, setPatients] = useState([]);
   const [filtered, setFiltered] = useState(false);
+  const [caseManager, setCaseManager] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [assignedData, setAssignedData] = useState({
+    caseManagerId: "",
+    patients: [],
+  });
   const [filterData, setFilterData] = useState({
     facilityId: "",
     sex: "",
@@ -150,6 +157,14 @@ const PatientList = (props) => {
       });
   };
 
+  const getCaseManager = async () => {
+    await axios
+      .get(`${url}casemanager/list`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((resp) => setCaseManager(resp.data))
+      .catch((err) => console.log(err));
+  };
   const Facilities = () => {
     axios
       .get(`${url}account`, {
@@ -168,6 +183,14 @@ const PatientList = (props) => {
     const { name, value } = e.target;
     setFilterData({
       ...filterData,
+      [name]: value,
+    });
+  };
+
+  const handleInputSaveChange = (e) => {
+    const { name, value } = e.target;
+    setAssignedData({
+      ...assignedData,
       [name]: value,
     });
   };
@@ -211,32 +234,47 @@ const PatientList = (props) => {
     getStateByCountryId("1");
   };
 
-  const getAssignedClient = () => {
-    axios
-      .get(`${url}assign/list`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        let arr = [];
-        if (response.data === null) {
-        } else {
-          response.data.forEach((x) => {
-            x.patients.forEach((y) => {
-              arr.push(y);
-            });
-          });
-        }
-        setAssignedClient(arr);
-      })
-      .catch((err) => console.error(err));
+  const validateInputs = () => {
+    let temp = { ...errors };
+    // temp.assignDate = assignedData.assignDate ? "" : "Assign date is required.";
+    temp.caseManagerId = assignedData.caseManagerId
+      ? ""
+      : "Case manager is required.";
+    // temp.state = assignedData.state ? "" : "State is required.";
+    // temp.lga = assignedData.lga ? "" : "LGA is required.";
+    setErrors({
+      ...temp,
+    });
+    return Object.values(temp).every((x) => x === "");
   };
+
+  // const getAssignedClient = () => {
+  //   axios
+  //     .get(`${url}assign/list`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     })
+  //     .then((response) => {
+  //       let arr = [];
+  //       if (response.data === null) {
+  //       } else {
+  //         response.data.forEach((x) => {
+  //           x.patients.forEach((y) => {
+  //             arr.push(y);
+  //           });
+  //         });
+  //       }
+  //       setAssignedClient(arr);
+  //     })
+  //     .catch((err) => console.error(err));
+  // };
 
   useEffect(() => {
     getStates();
     Facilities();
     KP();
     PregnancyStatus();
-    getAssignedClient();
+    //getAssignedClient();
+    getCaseManager();
     localStorage.removeItem("patient");
     localStorage.removeItem("patients");
     localStorage.removeItem("filterData");
@@ -272,6 +310,30 @@ const PatientList = (props) => {
       patientArray.push(item);
     });
     localStorage.setItem("patients", JSON.stringify(patientArray));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const result = JSON.parse(localStorage.getItem("patients"));
+    assignedData.patients = result;
+    if (validateInputs()) {
+      console.log(assignedData);
+
+      await axios
+        .post(`${url}assign/create`, assignedData, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((resp) => {
+          console.log(resp);
+          toast.success("Case manager assigned to patient successfully");
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error(
+            "Something went wrong. Please try again... " + err.message
+          );
+        });
+    }
   };
 
   return (
@@ -416,48 +478,85 @@ const PatientList = (props) => {
           </FormGroup>
         </Col>
       </Row>
-      <Link
-        to={{
-          pathname: "/assign",
-        }}
-      >
+      {patients.length === 0 ? (
         <Button
           variant="contained"
           color="primary"
           className="float-right mr-1"
-          startIcon={<PersonAddIcon />}
+          startIcon={<PersonSearchIcon />}
           style={{
             float: "right",
-            backgroundColor: "#014d88",
+            backgroundColor: "rgb(153, 46, 98)",
             fontWeight: "bolder",
             color: "fff",
           }}
+          onClick={getPatient}
         >
-          <span style={{ textTransform: "capitalize" }}>
-            Assign Case Manager{" "}
-          </span>
-        </Button>{" "}
-      </Link>
-      <Button
-        variant="contained"
-        color="primary"
-        className="float-right mr-1"
-        startIcon={<PersonSearchIcon />}
-        style={{
-          float: "right",
-          backgroundColor: "rgb(153, 46, 98)",
-          fontWeight: "bolder",
-          color: "fff",
-        }}
-        onClick={getPatient}
-      >
-        <span style={{ textTransform: "capitalize" }}>Search Patients</span>
-      </Button>
+          <span style={{ textTransform: "capitalize" }}>Search Patients</span>
+        </Button>
+      ) : (
+        <Row>
+          <Col></Col>
+          <Col></Col>
+          <Col></Col>
+          <Col>
+            <FormGroup>
+              <Label for="caseManagerId" className={classes.label}>
+                Case Manager <span style={{ color: "red" }}> *</span>
+              </Label>
+              <select
+                className="form-control"
+                style={{
+                  border: "1px solid #014d88",
+                  borderRadius: "0px",
+                  fontSize: "14px",
+                  color: "#000",
+                }}
+                name="caseManagerId"
+                value={assignedData.caseManagerId}
+                id="caseManagerId"
+                onChange={handleInputSaveChange}
+              >
+                <option>Select Case Manager</option>
+                {caseManager &&
+                  caseManager.map((value, i) => (
+                    <option key={i} value={`${value.id}`}>
+                      {`${value.firstName} ${value.lastName}`}
+                    </option>
+                  ))}
+              </select>
+              {errors.caseManagerId !== "" ? (
+                <span className={classes.error}>{errors.caseManagerId}</span>
+              ) : (
+                ""
+              )}
+            </FormGroup>
+            <Button
+              variant="contained"
+              color="primary"
+              className="float-right mr-1"
+              startIcon={<PersonAddIcon />}
+              onClick={handleSubmit}
+              style={{
+                float: "right",
+                backgroundColor: "#014d88",
+                fontWeight: "bolder",
+                color: "fff",
+              }}
+            >
+              <span style={{ textTransform: "capitalize" }}>
+                Assign Case Manager{" "}
+              </span>
+            </Button>
+          </Col>
+        </Row>
+      )}
+
       <br />
       <br />
       <MaterialTable
         icons={tableIcons}
-        title="List of Enrolled Patients"
+        title="List of unassigned patients"
         columns={[
           { title: "Hospital ID", field: "hospitalNo" },
           { title: "Full Name", field: "fullName" },

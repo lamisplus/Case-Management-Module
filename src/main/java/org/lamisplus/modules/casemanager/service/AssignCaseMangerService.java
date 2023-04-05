@@ -2,15 +2,14 @@ package org.lamisplus.modules.casemanager.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lamisplus.modules.casemanager.domain.AssignCaseManager;
 import org.lamisplus.modules.casemanager.domain.AssignedPatient;
 import org.lamisplus.modules.casemanager.dto.AssignCaseManagerDTO;
-import org.lamisplus.modules.casemanager.dto.PatientListDTO;
 import org.lamisplus.modules.casemanager.repository.AsignPatientRepository;
 import org.lamisplus.modules.casemanager.repository.AssignCaseManagerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -21,33 +20,23 @@ public class AssignCaseMangerService {
     private final AssignCaseManagerRepository assignCaseManagerRepository;
     private final AsignPatientRepository asignPatientRepository;
 
-    public AssignCaseManager save(AssignCaseManagerDTO assignCaseManagerDTO) {
+    public List<AssignedPatient> save(AssignCaseManagerDTO assignCaseManagerDTO) {
         try {
-            AssignCaseManager assignCaseManager = new AssignCaseManager();
-            assignCaseManager.setAssignDate(assignCaseManagerDTO.getAssignDate());
-            assignCaseManager.setCaseManager(assignCaseManagerDTO.getCaseManager());
-            assignCaseManager.setState(assignCaseManagerDTO.getState());
-            assignCaseManager.setLga(assignCaseManagerDTO.getLga());
-            AssignCaseManager createdCasemanger = assignCaseManagerRepository.save(assignCaseManager);
 
             List<AssignedPatient> assignedPatients = new ArrayList<>();
 
             for(AssignedPatient patient: assignCaseManagerDTO.getPatients()) {
-               assignedPatients.add(dtoToEntity(patient, createdCasemanger));
+               assignedPatients.add(dtoToEntity(patient, assignCaseManagerDTO));
             }
 
-            asignPatientRepository.saveAll(assignedPatients);
-
-            return createdCasemanger;
+            return asignPatientRepository.saveAll(assignedPatients);
 
         }catch (Exception ignored) {
             return null;
         }
-        
-        
     }
 
-    private static AssignedPatient dtoToEntity(AssignedPatient patient, AssignCaseManager assignCaseManager){
+    private static AssignedPatient dtoToEntity(AssignedPatient patient, AssignCaseManagerDTO assignCaseManagerDTO){
         AssignedPatient assignedPatient = new AssignedPatient();
         assignedPatient.setAge(patient.getAge());
         assignedPatient.setSex(patient.getSex());
@@ -58,28 +47,25 @@ public class AssignCaseMangerService {
         assignedPatient.setFullName(patient.getFullName());
         assignedPatient.setFacilityId(patient.getFacilityId());
         assignedPatient.setPersonUuid(patient.getPersonUuid());
-        assignedPatient.setCaseManagerAssignId(assignCaseManager.getId());
+        assignedPatient.setPhone(patient.getPhone());
+        assignedPatient.setState(patient.getState());
+        assignedPatient.setLga(patient.getLga());
+        assignedPatient.setCaseManagerId(assignCaseManagerDTO.getCaseManagerId());
         return assignedPatient;
     }
 
-    public List<AssignCaseManager> findAll()
+    public List<AssignedPatient> findAll()
     {
         return assignCaseManagerRepository.findAll();
     }
 
-    public AssignCaseManager reassign(AssignCaseManagerDTO assignCaseManagerDTO) {
+    public List<AssignedPatient> reassign(AssignCaseManagerDTO assignCaseManagerDTO) {
         try {
-            AssignCaseManager assignCaseManager = new AssignCaseManager();
-            assignCaseManager.setAssignDate(assignCaseManagerDTO.getAssignDate());
-            assignCaseManager.setCaseManager(assignCaseManagerDTO.getCaseManager());
-            assignCaseManager.setState(assignCaseManagerDTO.getState());
-            assignCaseManager.setLga(assignCaseManagerDTO.getLga());
-            AssignCaseManager createdCasemanger = assignCaseManagerRepository.save(assignCaseManager);
 
             List<AssignedPatient> assignedPatients = new ArrayList<>();
 
             for(AssignedPatient patient: assignCaseManagerDTO.getPatients()) {
-                assignedPatients.add(dtoToEntity(patient, createdCasemanger));
+                assignedPatients.add(dtoToEntity(patient, assignCaseManagerDTO));
 
                 AssignedPatient oldPatient = asignPatientRepository.findById(patient.getId()).orElseThrow(() -> new NoSuchElementException(
                         "Patient not found"
@@ -88,16 +74,14 @@ public class AssignCaseMangerService {
                 asignPatientRepository.deleteById(oldPatient.getId());
             }
 
-            asignPatientRepository.saveAll(assignedPatients);
-
-            return createdCasemanger;
+            return asignPatientRepository.saveAll(assignedPatients);
 
         }catch (Exception ignored) {
             return null;
         }
     }
-    public String delete(Integer patienrId) {
-        asignPatientRepository.deleteById(patienrId);
+    public String delete(Integer patientId) {
+        asignPatientRepository.deleteById(patientId);
         return "Patient unassigned successfully";
     }
     

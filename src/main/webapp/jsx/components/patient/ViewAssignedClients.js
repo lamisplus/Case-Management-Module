@@ -136,12 +136,13 @@ const useStyles = makeStyles((theme) => ({
 const ViewAssignedClients = (props) => {
   const [loading, setLoading] = useState(false);
   const location = useLocation();
-  const { clients } = location.state;
+  const { caseManager } = location.state;
+  console.log(caseManager);
   const history = useHistory();
   const [addModal, setAddModal] = useState(false);
   const [patient, setPatient] = useState({});
   const classes = useStyles();
-  const [assignedData, setAssignedData] = useState(clients);
+  const [assignedData, setAssignedData] = useState(caseManager);
   const [modal, setModal] = useState(false);
 
   const toggle = () => setAddModal(!addModal);
@@ -158,6 +159,22 @@ const ViewAssignedClients = (props) => {
   const onCancelDelete = () => {
     setModal(false);
   };
+
+  // const getCaseManagerPatients = async () => {
+  //   await axios
+  //     .get(`${url}casemanager/get/${caseManagerId}`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     })
+  //     .then((resp) => {
+  //       console.log(resp.data);
+  //       setAssignedData(resp.data);
+  //     })
+  //     .catch((err) => console.log(err));
+  // };
+
+  // useEffect(() => {
+  //   getCaseManagerPatients();
+  // }, []);
 
   const handleDelete = () => {
     const patientId = localStorage.getItem("patientID");
@@ -252,7 +269,7 @@ const ViewAssignedClients = (props) => {
                       id="assignDate"
                       placeholder="Date & Time Created"
                       className={classes.input}
-                      value={assignedData.assignDate}
+                      value={assignedData.createDate}
                       disabled
                     />
                   </FormGroup>
@@ -265,7 +282,7 @@ const ViewAssignedClients = (props) => {
                     <Input
                       type="text"
                       name="caseManager"
-                      value={assignedData.caseManager}
+                      value={`${assignedData.firstName}  ${assignedData.lastName}`}
                       id="caseManager"
                       className={classes.input}
                       disabled
@@ -273,7 +290,7 @@ const ViewAssignedClients = (props) => {
                   </FormGroup>
                 </Col>
               </Row>
-              <Row>
+              {/* <Row>
                 <Col>
                   <FormGroup>
                     <Label className={classes.label}>State</Label>
@@ -282,7 +299,7 @@ const ViewAssignedClients = (props) => {
                       name="state"
                       id="state"
                       className={classes.input}
-                      value={assignedData.state.split(" ")[1]}
+                      value={assignedData.state}
                       disabled
                     />
                   </FormGroup>
@@ -300,7 +317,7 @@ const ViewAssignedClients = (props) => {
                     />
                   </FormGroup>
                 </Col>
-              </Row>
+              </Row> */}
             </Form>
             <Row>
               <Col></Col>

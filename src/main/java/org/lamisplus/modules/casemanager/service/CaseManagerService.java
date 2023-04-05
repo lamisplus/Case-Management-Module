@@ -172,7 +172,7 @@ public class CaseManagerService {
     
     @NotNull
     private List<PatientListDTO> getPatientListDTOS(Long facilityId, List<PatientListDTO> patientListDTOList) {
-        List<String> patientUuids = asignPatientRepository.getAssignedPatientPatientUuids(String.valueOf(facilityId));
+        List<String> patientUuids = asignPatientRepository.getAssignedPatientPatientUuids(facilityId);
         return patientListDTOList.stream()
                 .filter(patient -> !patientUuids.contains(patient.getPersonUuid()))
                 .collect(Collectors.toList());

@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -30,7 +32,10 @@ public class CaseManager {
     @Column(name = "phone_number")
     private String phoneNumber;
     @Column(name = "facility_id")
-    private Integer facilityId;
+    private Long facilityId;
     @Column(name = "create_date")
     private LocalDateTime createDate;
+    @JoinColumn(name = "case_manager_Id")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AssignedPatient> patients = new ArrayList<>();
 }
