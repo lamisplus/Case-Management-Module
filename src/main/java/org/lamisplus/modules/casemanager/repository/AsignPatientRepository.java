@@ -13,6 +13,9 @@ import java.util.List;
 @Repository
 public interface AsignPatientRepository extends JpaRepository<AssignedPatient, Integer> {
 	
+	@Query(value = "SELECT person_uuid FROM case_manager_patients\n" +
+			" WHERE facility_id = ?1", nativeQuery = true)
+	List<String> getAssignedPatientPatientUuids(String patientId);
 	
 	@Query(value = "WITH bio_data AS (SELECT p.facility_id as facilityId, p.id, p.uuid as personUuid, CAST(p.archived as BOOLEAN) as archived, p.uuid,p.hospital_number as hospitalNumber, \n" +
 			"\t\t\t  p.surname, p.first_name as firstName,\n" +
@@ -342,7 +345,7 @@ public interface AsignPatientRepository extends JpaRepository<AssignedPatient, I
 			"            Select e.*, b.*  FROM enrollment_details e\n" +
 			"\t\t\tINNER JOIN bio_data b ON e.person_uuid=b.personUuid\n" +
 			"\t\t    WHERE b.facilityId = ?1 AND ( b.residentiallga = ?3 OR  b.residentiallga IS NULL)\n" +
-			"\t\t\t AND (b.residentialstate = ?2 OR b.residentialstate IS NULL ) AND ( b.gender =?3 OR  b.gender IS NULL )", nativeQuery = true)
+			"\t\t\t AND (b.residentialstate = ?2 OR b.residentialstate IS NULL ) AND ( b.gender =?4 OR  b.gender IS NULL )", nativeQuery = true)
 	List<PatientListDTO> getPatientListDTOsByFacilityAndStateAndLgaAndGender(Long facilityId,
 	                                        String stateOfResidence,
 	                                        String lgaOfResidence,

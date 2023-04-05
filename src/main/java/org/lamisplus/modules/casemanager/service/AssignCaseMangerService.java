@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lamisplus.modules.casemanager.domain.AssignCaseManager;
 import org.lamisplus.modules.casemanager.domain.AssignedPatient;
 import org.lamisplus.modules.casemanager.dto.AssignCaseManagerDTO;
+import org.lamisplus.modules.casemanager.dto.PatientListDTO;
 import org.lamisplus.modules.casemanager.repository.AsignPatientRepository;
 import org.lamisplus.modules.casemanager.repository.AssignCaseManagerRepository;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,8 @@ public class AssignCaseMangerService {
         }catch (Exception ignored) {
             return null;
         }
+        
+        
     }
 
     private static AssignedPatient dtoToEntity(AssignedPatient patient, AssignCaseManager assignCaseManager){
@@ -96,5 +99,6 @@ public class AssignCaseMangerService {
         asignPatientRepository.deleteById(patienrId);
         return "Patient unassigned successfully";
     }
-
+    
+   
 }

@@ -36,7 +36,6 @@ public class CaseManagerController {
             @RequestParam(value = "lgaOfResidence",  defaultValue = "", required = false)  String lgaOfResidence,
             @RequestParam(value = "gender",  defaultValue = "", required = false)  String gender,
             @RequestParam(value = "targetGroup",  defaultValue = "", required = false)  String targetGroup){
-        System.out.println(" state default value : " +stateOfResidence);
         return  ResponseEntity.ok(caseManagerService.getPatientListDTOS(facilityId, stateOfResidence, lgaOfResidence,gender,targetGroup));
     }
     
