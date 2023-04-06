@@ -317,8 +317,9 @@ const AddCaseManager = (props) => {
                           border: "1px solid #014D88",
                           borderRadius: "0.2rem",
                         }}
+                        s
                       >
-                        <option value={""}></option>
+                        <option value={""}>Select Facility</option>
                         {facilities.map((value) => (
                           <option
                             key={value.id}

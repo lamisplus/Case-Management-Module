@@ -272,7 +272,7 @@ const EditCaseManager = (props) => {
                           borderRadius: "0.2rem",
                         }}
                       >
-                        <option value={""}></option>
+                        <option value={""}>Select Facility</option>
                         {facilities.map((value) => (
                           <option
                             key={value.id}

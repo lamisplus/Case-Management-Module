@@ -110,7 +110,7 @@ const useStyles = makeStyles((theme) => ({
 
 const PatientList = (props) => {
   const classes = useStyles();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [states, setStates] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [facilities, setFacilities] = useState([]);
@@ -261,7 +261,7 @@ const PatientList = (props) => {
 
   const getPatient = () => {
     setFiltered(true);
-
+    setLoading(true);
     let state = filterData.state?.split(" ")[1];
     //console.log(state);
     localStorage.setItem("filterData", JSON.stringify(filterData));
@@ -559,7 +559,7 @@ const PatientList = (props) => {
           { title: "DatimId", field: "datimId", hidden: true },
           // { title: "Actions", field: "actions", filtering: false },
         ]}
-        //isLoading={loading}
+        isLoading={loading}
         data={
           patients &&
           patients.map((row) => ({
