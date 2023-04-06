@@ -137,7 +137,6 @@ const ViewAssignedClients = (props) => {
   const [loading, setLoading] = useState(false);
   const location = useLocation();
   const { caseManager } = location.state;
-  console.log(caseManager);
   const history = useHistory();
   const [addModal, setAddModal] = useState(false);
   const [patient, setPatient] = useState({});
@@ -159,22 +158,6 @@ const ViewAssignedClients = (props) => {
   const onCancelDelete = () => {
     setModal(false);
   };
-
-  // const getCaseManagerPatients = async () => {
-  //   await axios
-  //     .get(`${url}casemanager/get/${caseManagerId}`, {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     })
-  //     .then((resp) => {
-  //       console.log(resp.data);
-  //       setAssignedData(resp.data);
-  //     })
-  //     .catch((err) => console.log(err));
-  // };
-
-  // useEffect(() => {
-  //   getCaseManagerPatients();
-  // }, []);
 
   const handleDelete = () => {
     const patientId = localStorage.getItem("patientID");
@@ -208,16 +191,8 @@ const ViewAssignedClients = (props) => {
     let patientArray = [];
 
     patient.forEach((patientChange) => {
-      const {
-        id,
-        hospitalNo,
-        fullName,
-        sex,
-        dob,
-        age,
-        biometricStatus,
-        currentStatus,
-      } = patientChange;
+      const { id, hospitalNo, fullName, sex, dob, age, phone, state, lga } =
+        patientChange;
       patientArray.push({
         id,
         hospitalNo,
@@ -225,8 +200,9 @@ const ViewAssignedClients = (props) => {
         sex,
         dob,
         age,
-        biometricStatus,
-        currentStatus,
+        phone,
+        state,
+        lga,
       });
     });
 
@@ -351,8 +327,9 @@ const ViewAssignedClients = (props) => {
                   { title: "Sex", field: "sex" },
                   { title: "DOB", field: "dob" },
                   { title: "Age", field: "age" },
-                  // { title: "Biometrics", field: "biometricStatus" },
-                  // { title: "Enrolled Status", field: "currentStatus" },
+                  { title: "Phone", field: "phone" },
+                  { title: "State", field: "state" },
+                  { title: "LGA", field: "lga" },
                   { title: "", field: "assigned" },
                   { title: "Action", field: "actions" },
                 ]}
@@ -366,8 +343,9 @@ const ViewAssignedClients = (props) => {
                     sex: item.sex,
                     dob: item.dob,
                     age: item.age,
-                    // biometricStatus: item.biometricStatus,
-                    // currentStatus: item.currentStatus,
+                    phone: item.phone,
+                    state: item.state,
+                    lga: item.lga,
                     assigned: <Badge color="info">Assigned</Badge>,
                     actions: (
                       <>

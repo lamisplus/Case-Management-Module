@@ -248,32 +248,11 @@ const PatientList = (props) => {
     return Object.values(temp).every((x) => x === "");
   };
 
-  // const getAssignedClient = () => {
-  //   axios
-  //     .get(`${url}assign/list`, {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     })
-  //     .then((response) => {
-  //       let arr = [];
-  //       if (response.data === null) {
-  //       } else {
-  //         response.data.forEach((x) => {
-  //           x.patients.forEach((y) => {
-  //             arr.push(y);
-  //           });
-  //         });
-  //       }
-  //       setAssignedClient(arr);
-  //     })
-  //     .catch((err) => console.error(err));
-  // };
-
   useEffect(() => {
     getStates();
     Facilities();
     KP();
     PregnancyStatus();
-    //getAssignedClient();
     getCaseManager();
     localStorage.removeItem("patient");
     localStorage.removeItem("patients");
@@ -319,20 +298,26 @@ const PatientList = (props) => {
     if (validateInputs()) {
       console.log(assignedData);
 
-      await axios
-        .post(`${url}assign/create`, assignedData, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((resp) => {
-          console.log(resp);
-          toast.success("Case manager assigned to patient successfully");
-        })
-        .catch((err) => {
-          console.log(err);
-          toast.error(
-            "Something went wrong. Please try again... " + err.message
-          );
-        });
+      if (assignedData.patients?.length > 0) {
+        await axios
+          .post(`${url}assign/create`, assignedData, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((resp) => {
+            console.log(resp);
+            toast.success("Case manager assigned to patient successfully");
+          })
+          .catch((err) => {
+            console.log(err);
+            toast.error(
+              "Something went wrong. Please try again... " + err.message
+            );
+          });
+      } else {
+        toast.error(
+          "Unassigned Patients are not selected. Please try again..."
+        );
+      }
     }
   };
 
@@ -597,50 +582,6 @@ const PatientList = (props) => {
             datimId: row.datimId,
           }))
         }
-        // data={(query) =>
-        //   new Promise((resolve, reject) =>
-        //     axios
-        //       .get(
-        //         `${url}hiv/patients?pageSize=${query.pageSize}&pageNo=${query.page}&searchValue=${query.search}`,
-        //         { headers: { Authorization: `Bearer ${token}` } }
-        //       )
-        //       .then((res) => {
-        //         let result = axios
-        //           .get(`${url}assign/list`, {
-        //             headers: { Authorization: `Bearer ${token}` },
-        //           })
-        //           .then((resp) => {
-        //             let arr = [];
-
-        //             resp.data.forEach((x) => {
-        //               x.patients.forEach((y) => {
-        //                 arr.push(y);
-        //               });
-        //             });
-
-        //             let records = patientFilter(res.data.records, arr);
-
-        //             resolve({
-        //               data:
-        //                 patients &&
-        //                 patients.map((row) => ({
-        //                   hospitalNo: row.hospitalNumber,
-        //                   fullName: `${row.firstName} ${
-        //                     row.otherName === null ? " " : row.otherName
-        //                   } ${row.surname}`,
-        //                   sex: row.sex,
-        //                   dob: row.dateOfBirth,
-        //                   age: row.age,
-        //                   biometricStatus: row.biometricStatus,
-        //                   currentStatus: row.currentStatus,
-        //                 })),
-        //               page: query.page,
-        //               totalCount: res.data.totalRecords,
-        //             });
-        //           });
-        //       })
-        //   )
-        // }
         options={{
           headerStyle: {
             backgroundColor: "#014d88",
