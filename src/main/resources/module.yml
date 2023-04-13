@@ -1,0 +1,16 @@
+basePackage: org.lamisplus.modules.casemanager
+name: CaseManagerModule
+dependencies: { PatientModule: 1.0.0 }
+store: true
+menus:
+  - icon:
+    disabled: false
+    name: Case Manager
+    state: Case Manager
+    url: /across/resources/static/casemanager/index.html
+umdLocation: /across/resources/static/casemanager/index.html
+webModules:
+  - breadcrumb: Case Manager
+    name: CaseManagerModule
+    path: casemanager
+    position: 99
