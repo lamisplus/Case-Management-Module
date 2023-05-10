@@ -111,6 +111,7 @@ const useStyles = makeStyles((theme) => ({
 const PatientList = (props) => {
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [states, setStates] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [facilities, setFacilities] = useState([]);
@@ -171,7 +172,7 @@ const PatientList = (props) => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        console.log(response.data);
+        //console.log(response.data);
         setFacilities(response.data.applicationUserOrganisationUnits);
       })
       .catch((error) => {
@@ -296,7 +297,7 @@ const PatientList = (props) => {
     const result = JSON.parse(localStorage.getItem("patients"));
     assignedData.patients = result;
     if (validateInputs()) {
-      console.log(assignedData);
+      //console.log(assignedData);
 
       if (assignedData.patients?.length > 0) {
         await axios
@@ -304,14 +305,18 @@ const PatientList = (props) => {
             headers: { Authorization: `Bearer ${token}` },
           })
           .then((resp) => {
+            setSubmitted(true);
             console.log(resp);
             toast.success("Case manager assigned to patient successfully");
+            localStorage.removeItem("patients");
+            setPatients([]);
           })
           .catch((err) => {
             console.log(err);
             toast.error(
               "Something went wrong. Please try again... " + err.message
             );
+            setSubmitted(false);
           });
       } else {
         toast.error(
@@ -522,6 +527,7 @@ const PatientList = (props) => {
               className="float-right mr-1"
               startIcon={<PersonAddIcon />}
               onClick={handleSubmit}
+              disabled={submitted ? true : false}
               style={{
                 float: "right",
                 backgroundColor: "#014d88",

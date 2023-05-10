@@ -81,7 +81,7 @@ const EditCaseManager = (props) => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        console.log(response.data);
+        //console.log(response.data);
         setFacilities(response.data.applicationUserOrganisationUnits);
       })
       .catch((error) => {

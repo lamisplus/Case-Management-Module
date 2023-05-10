@@ -319,7 +319,7 @@ const ViewAssignedClients = (props) => {
               <br />
               <MaterialTable
                 icons={tableIcons}
-                title="Enrolled Patients Assigned"
+                title="Patients Assigned"
                 columns={[
                   { title: "ID", field: "id" },
                   { title: "Hospital No", field: "hospitalNo" },
