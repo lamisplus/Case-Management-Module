@@ -305,9 +305,10 @@ const PatientList = (props) => {
             headers: { Authorization: `Bearer ${token}` },
           })
           .then((resp) => {
-            setSubmitted(!submitted);
+            setSubmitted(true);
             console.log(resp);
             toast.success("Case manager assigned to patient successfully");
+            localStorage.removeItem("patients");
             setPatients([]);
           })
           .catch((err) => {
@@ -315,6 +316,7 @@ const PatientList = (props) => {
             toast.error(
               "Something went wrong. Please try again... " + err.message
             );
+            setSubmitted(false);
           });
       } else {
         toast.error(
