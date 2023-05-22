@@ -73,10 +73,16 @@ const AddCaseManager = (props) => {
     sex: "",
     phoneNumber: "",
     facilityId: "",
+    religion: "",
+    address: "",
+    created_by: "",
+    modified_by: "",
+    active: "",
   });
   const [facilities, setFacilities] = useState([]);
   const [contactPhone, setContactPhone] = useState("");
   const [errors, setErrors] = useState({});
+  const [user, setUser] = useState("");
 
   const Facilities = () => {
     axios
@@ -84,8 +90,9 @@ const AddCaseManager = (props) => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        //console.log(response.data);
+        // console.log(response.data);
         setFacilities(response.data.applicationUserOrganisationUnits);
+        setUser(`${response.data.firstName} ${response.data.lastName}`);
       })
       .catch((error) => {
         //console.log(error);
@@ -115,6 +122,9 @@ const AddCaseManager = (props) => {
     temp.lastName = data.lastName ? "" : "Last name is required.";
     temp.sex = data.sex ? "" : "Sex is required.";
     temp.phoneNumber = data.phoneNumber ? "" : "Phone number is required.";
+    temp.facility = data.facilityId ? "" : "Facility is required.";
+    temp.religion = data.religion ? "" : "Religion is required.";
+    temp.address = data.address ? "" : "Address is required.";
 
     setErrors({
       ...temp,
@@ -126,6 +136,8 @@ const AddCaseManager = (props) => {
     e.preventDefault();
 
     data.phoneNumber = contactPhone;
+    data.created_by = user;
+    data.active = true;
 
     if (validateInputs()) {
       await axios
@@ -135,6 +147,16 @@ const AddCaseManager = (props) => {
         .then((resp) => {
           console.log(resp);
           toast.success("Case manager added successfully");
+          setData({
+            designation: "",
+            firstName: "",
+            lastName: "",
+            sex: "",
+            phoneNumber: "",
+            facilityId: "",
+            religion: "",
+            address: "",
+          });
         })
         .catch((err) => {
           //console.log(err);
@@ -329,6 +351,66 @@ const AddCaseManager = (props) => {
                           </option>
                         ))}
                       </select>
+                      {errors.facility !== "" ? (
+                        <span className={classes.error}>{errors.facility}</span>
+                      ) : (
+                        ""
+                      )}
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={4}>
+                    <FormGroup>
+                      <Label for="religion" className={classes.label}>
+                        Religion <span style={{ color: "red" }}> *</span>
+                      </Label>
+                      <select
+                        className="form-control"
+                        style={{
+                          border: "1px solid #014d88",
+                          borderRadius: "0px",
+                          fontSize: "14px",
+                          color: "#000",
+                        }}
+                        name="religion"
+                        value={data.religion}
+                        id="sex"
+                        onChange={handleInputChange}
+                      >
+                        <option>Select Religion</option>
+                        <option>Christianity</option>
+                        <option>Islam</option>
+                      </select>
+                      {errors.sex !== "" ? (
+                        <span className={classes.error}>{errors.sex}</span>
+                      ) : (
+                        ""
+                      )}
+                    </FormGroup>
+                  </Col>
+                  <Col md={8}>
+                    <FormGroup>
+                      <Label for="sex" className={classes.label}>
+                        Address <span style={{ color: "red" }}> *</span>
+                      </Label>
+                      <Input
+                        type="text"
+                        name="address"
+                        id="address"
+                        value={data.address}
+                        onChange={handleInputChange}
+                        className="form-control"
+                        style={{
+                          border: "1px solid #014D88",
+                          borderRadius: "0.2rem",
+                        }}
+                      />
+                      {errors.address !== "" ? (
+                        <span className={classes.error}>{errors.address}</span>
+                      ) : (
+                        ""
+                      )}
                     </FormGroup>
                   </Col>
                 </Row>

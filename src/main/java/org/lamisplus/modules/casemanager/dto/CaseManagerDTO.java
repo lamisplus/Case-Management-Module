@@ -23,5 +23,12 @@ public class CaseManagerDTO {
     private String uuid;
     private Long facilityId;
     private LocalDateTime createDate;
+    private String address;
+    private LocalDateTime dateModified;
+    private Boolean active;
+    private Integer archived;
+    private String createdBy;
+    private String modifiedBy;
+    private String religion;
     private List<AssignedPatient> patients;
 }

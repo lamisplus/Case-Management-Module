@@ -8,6 +8,7 @@ import org.lamisplus.modules.casemanager.repository.AsignPatientRepository;
 import org.lamisplus.modules.casemanager.repository.AssignCaseManagerRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,6 +51,13 @@ public class AssignCaseMangerService {
         assignedPatient.setPhone(patient.getPhone());
         assignedPatient.setState(patient.getState());
         assignedPatient.setLga(patient.getLga());
+        assignedPatient.setDate_assigned(LocalDateTime.now());
+        assignedPatient.setDate_created(LocalDateTime.now());
+        assignedPatient.setDate_modified(patient.getDate_modified());
+        assignedPatient.setCreatedBy(patient.getCreatedBy());
+        assignedPatient.setModifiedBy(patient.getModifiedBy());
+        assignedPatient.setAction(patient.getAction());
+        assignedPatient.setUuid(patient.getUuid());
         assignedPatient.setCaseManagerId(assignCaseManagerDTO.getCaseManagerId());
         return assignedPatient;
     }

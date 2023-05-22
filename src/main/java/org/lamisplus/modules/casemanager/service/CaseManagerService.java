@@ -34,6 +34,12 @@ public class CaseManagerService {
         caseManagerobj.setSex(caseManagerRequest.getSex());
         caseManagerobj.setPhoneNumber(caseManagerRequest.getPhoneNumber());
         caseManagerobj.setFacilityId(caseManagerRequest.getFacilityId());
+        caseManagerobj.setAddress(caseManagerRequest.getAddress());
+        caseManagerobj.setCreatedBy(caseManagerRequest.getCreated_by());
+        caseManagerobj.setDateModified(caseManagerRequest.getDate_modified());
+        caseManagerobj.setArchived(caseManagerRequest.getArchived());
+        caseManagerobj.setActive(caseManagerRequest.getActive());
+        caseManagerobj.setReligion(caseManagerRequest.getReligion());
         caseManagerobj.setUuid(UUID.randomUUID().toString());
         caseManagerobj.setCreateDate(LocalDateTime.now());
 
@@ -48,12 +54,19 @@ public class CaseManagerService {
                     ));
 
             if (existingCaseManager != null) {
+
                 existingCaseManager.setDesignation(caseManagerRequest.getDesignation());
                 existingCaseManager.setFirstName(caseManagerRequest.getFirstName());
                 existingCaseManager.setLastName(caseManagerRequest.getLastName());
                 existingCaseManager.setSex(caseManagerRequest.getSex());
                 existingCaseManager.setPhoneNumber(caseManagerRequest.getPhoneNumber());
                 existingCaseManager.setFacilityId(caseManagerRequest.getFacilityId());
+                existingCaseManager.setAddress(caseManagerRequest.getAddress());
+                existingCaseManager.setModifiedBy(caseManagerRequest.getModified_by());
+                existingCaseManager.setDateModified(LocalDateTime.now());
+                existingCaseManager.setArchived(caseManagerRequest.getArchived());
+                existingCaseManager.setActive(caseManagerRequest.getActive());
+                existingCaseManager.setReligion(caseManagerRequest.getReligion());
 
                 return caseManagerRepository.save(existingCaseManager);
             }else {

@@ -43,6 +43,20 @@ public class AssignedPatient {
     private String lga;
     @Column(name = "case_manager_Id")
     private Integer caseManagerId;
+    @Column(name = "date_assigned")
+    private LocalDateTime date_assigned;
+    @Column(name = "date_created")
+    private LocalDateTime date_created;
+    @Column(name = "date_modified")
+    private LocalDateTime date_modified;
+    @Column(name = "created_by")
+    private String createdBy;
+    @Column(name = "modified_by")
+    private String modifiedBy;
+    @Column(name = "action")
+    private String action;
+    @Column(name = "uuid")
+    private String uuid;
     @Column(name = "create_date")
     private LocalDateTime createDate;
 }

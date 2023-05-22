@@ -63,8 +63,9 @@ const useStyles = makeStyles((theme) => ({
 const EditCaseManager = (props) => {
   const [facilities, setFacilities] = useState([]);
   const classes = useStyles();
+  const [user, setUser] = useState("");
 
-  //console.log(props.casemanager);
+  console.log(props.casemanager);
 
   const [data, setData] = useState({
     designation: props.casemanager?.designation,
@@ -73,6 +74,11 @@ const EditCaseManager = (props) => {
     sex: props.casemanager?.sex,
     phoneNumber: props.casemanager?.phoneNumber,
     facilityId: props.casemanager?.facilityId,
+    religion: props.casemanager?.religion,
+    address: props.casemanager?.address,
+    created_by: props.casemanager?.createdBy,
+    modified_by: "",
+    active: props.casemanager?.active,
   });
 
   const Facilities = () => {
@@ -82,6 +88,7 @@ const EditCaseManager = (props) => {
       })
       .then((response) => {
         //console.log(response.data);
+        setUser(`${response.data.firstName} ${response.data.lastName}`);
         setFacilities(response.data.applicationUserOrganisationUnits);
       })
       .catch((error) => {
@@ -114,22 +121,25 @@ const EditCaseManager = (props) => {
   const editCaseManager = async (e) => {
     e.preventDefault();
 
-    console.log("Edit data", contactPhone);
+    //console.log("Edit data", contactPhone);
     data.phoneNumber = contactPhone ?? data.phoneNumber;
-    await axios
-      .put(`${baseUrl}casemanager/update/${props.casemanager.id}`, data, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((resp) => {
-        console.log(resp);
-        toast.success("Case manager updated successfully");
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error("Something went wrong. Please try again... " + err.message);
-      });
-    props.getAllCaseManagers();
-    props.togglestatus();
+    data.modified_by = user;
+
+    console.log("Edit data", data);
+    // await axios
+    //   .put(`${baseUrl}casemanager/update/${props.casemanager.id}`, data, {
+    //     headers: { Authorization: `Bearer ${token}` },
+    //   })
+    //   .then((resp) => {
+    //     console.log(resp);
+    //     toast.success("Case manager updated successfully");
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //     toast.error("Something went wrong. Please try again... " + err.message);
+    //   });
+    // props.getAllCaseManagers();
+    // props.togglestatus();
   };
 
   return (
@@ -282,6 +292,51 @@ const EditCaseManager = (props) => {
                           </option>
                         ))}
                       </select>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={4}>
+                    <FormGroup>
+                      <Label for="religion" className={classes.label}>
+                        Religion <span style={{ color: "red" }}> *</span>
+                      </Label>
+                      <select
+                        className="form-control"
+                        style={{
+                          border: "1px solid #014d88",
+                          borderRadius: "0px",
+                          fontSize: "14px",
+                          color: "#000",
+                        }}
+                        name="religion"
+                        value={data.religion}
+                        id="sex"
+                        onChange={handleInputChange}
+                      >
+                        <option>Select Religion</option>
+                        <option>Christianity</option>
+                        <option>Islam</option>
+                      </select>
+                    </FormGroup>
+                  </Col>
+                  <Col md={8}>
+                    <FormGroup>
+                      <Label for="sex" className={classes.label}>
+                        Address <span style={{ color: "red" }}> *</span>
+                      </Label>
+                      <Input
+                        type="text"
+                        name="address"
+                        id="address"
+                        value={data.address}
+                        onChange={handleInputChange}
+                        className="form-control"
+                        style={{
+                          border: "1px solid #014D88",
+                          borderRadius: "0.2rem",
+                        }}
+                      />
                     </FormGroup>
                   </Col>
                 </Row>

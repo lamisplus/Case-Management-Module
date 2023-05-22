@@ -31,8 +31,22 @@ public class CaseManager {
     private String sex;
     @Column(name = "phone_number")
     private String phoneNumber;
+    @Column(name = "address")
+    private String address;
+    @Column(name = "created_by")
+    private String createdBy;
+    @Column(name = "modified_by")
+    private String modifiedBy;
     @Column(name = "facility_id")
     private Long facilityId;
+    @Column(name = "archived")
+    private Integer archived;
+    @Column(name = "active")
+    private Boolean active;
+    @Column(name = "religion")
+    private String religion;
+    @Column(name = "date_modified")
+    private LocalDateTime dateModified;
     @Column(name = "create_date")
     private LocalDateTime createDate;
     @JoinColumn(name = "case_manager_Id")

@@ -300,6 +300,8 @@ const CaseManagerList = (props) => {
           { title: "Last Name", field: "lastName" },
           { title: "Gender", field: "gender" },
           { title: "Phone Number", field: "phoneNumber" },
+          { title: "Religion", field: "religion" },
+          { title: "Address", field: "address", hidden: true },
           { title: "Total Patients", field: "patients" },
           { title: "Action", field: "actions" },
         ]}
@@ -312,6 +314,8 @@ const CaseManagerList = (props) => {
             lastName: row.lastName,
             gender: row.sex,
             phoneNumber: `+${row.phoneNumber}`,
+            religion: row.religion,
+            addCaseManager: row.addCase,
             patients: row.patients.length,
             actions: (
               <>
