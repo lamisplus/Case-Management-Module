@@ -65,7 +65,7 @@ const EditCaseManager = (props) => {
   const classes = useStyles();
   const [user, setUser] = useState("");
 
-  console.log(props.casemanager);
+  //console.log(props.casemanager);
 
   const [data, setData] = useState({
     designation: props.casemanager?.designation,
@@ -125,21 +125,21 @@ const EditCaseManager = (props) => {
     data.phoneNumber = contactPhone ?? data.phoneNumber;
     data.modified_by = user;
 
-    console.log("Edit data", data);
-    // await axios
-    //   .put(`${baseUrl}casemanager/update/${props.casemanager.id}`, data, {
-    //     headers: { Authorization: `Bearer ${token}` },
-    //   })
-    //   .then((resp) => {
-    //     console.log(resp);
-    //     toast.success("Case manager updated successfully");
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //     toast.error("Something went wrong. Please try again... " + err.message);
-    //   });
-    // props.getAllCaseManagers();
-    // props.togglestatus();
+    //console.log("Edit data", data);
+    await axios
+      .put(`${baseUrl}casemanager/update/${props.casemanager.id}`, data, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((resp) => {
+        console.log(resp);
+        toast.success("Case manager updated successfully");
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Something went wrong. Please try again... " + err.message);
+      });
+    props.getAllCaseManagers();
+    props.togglestatus();
   };
 
   return (

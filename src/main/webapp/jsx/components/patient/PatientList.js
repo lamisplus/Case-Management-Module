@@ -122,6 +122,7 @@ const PatientList = (props) => {
   const [filtered, setFiltered] = useState(false);
   const [caseManager, setCaseManager] = useState([]);
   const [errors, setErrors] = useState({});
+  const [user, setUser] = useState("");
   const [assignedData, setAssignedData] = useState({
     caseManagerId: "",
     patients: [],
@@ -172,7 +173,7 @@ const PatientList = (props) => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        //console.log(response.data);
+        setUser(`${response.data.firstName} ${response.data.lastName}`);
         setFacilities(response.data.applicationUserOrganisationUnits);
       })
       .catch((error) => {
@@ -295,7 +296,18 @@ const PatientList = (props) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = JSON.parse(localStorage.getItem("patients"));
-    assignedData.patients = result;
+
+    let updatedRecord = result.map((item) => {
+      const updated = {
+        ...item,
+        createdBy: user,
+        modifiedBy: "",
+        action: "ASSIGNMENTS",
+      };
+      return updated;
+    });
+
+    assignedData.patients = updatedRecord;
     if (validateInputs()) {
       //console.log(assignedData);
 

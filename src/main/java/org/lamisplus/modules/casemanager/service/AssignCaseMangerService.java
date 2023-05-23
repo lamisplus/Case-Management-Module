@@ -58,6 +58,7 @@ public class AssignCaseMangerService {
         assignedPatient.setModifiedBy(patient.getModifiedBy());
         assignedPatient.setAction(patient.getAction());
         assignedPatient.setUuid(patient.getUuid());
+        assignedPatient.setCreateDate(LocalDateTime.now());
         assignedPatient.setCaseManagerId(assignCaseManagerDTO.getCaseManagerId());
         return assignedPatient;
     }

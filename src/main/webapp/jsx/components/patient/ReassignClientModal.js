@@ -70,6 +70,7 @@ const ReassignClientModal = (props) => {
   const [states, setStates] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [caseManager, setCaseManager] = useState([]);
+  const [user, setUser] = useState("");
   const [assignedData, setAssignedData] = useState({
     caseManagerId: "",
     patients: [],
@@ -132,8 +133,22 @@ const ReassignClientModal = (props) => {
       .then((resp) => setCaseManager(resp.data))
       .catch((err) => console.log(err));
   };
+  const Facilities = () => {
+    axios
+      .get(`${url}account`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        setUser(`${response.data.firstName} ${response.data.lastName}`);
+        // setFacilities(response.data.applicationUserOrganisationUnits);
+      })
+      .catch((error) => {
+        //console.log(error);
+      });
+  };
 
   useEffect(() => {
+    Facilities();
     getStates();
     getCaseManager();
   }, []);
@@ -154,10 +169,21 @@ const ReassignClientModal = (props) => {
 
   const assignCaseManager = async (e) => {
     e.preventDefault();
-    assignedData.patients = patient;
+
+    let updatedRecord = patient.map((item) => {
+      const updated = {
+        ...item,
+        createdBy: "",
+        modifiedBy: user,
+        action: "REASSIGNMENTS",
+      };
+      return updated;
+    });
+
+    assignedData.patients = updatedRecord;
 
     if (validateInputs()) {
-      console.log(assignedData);
+      //console.log(assignedData);
       if (assignedData.patients?.length > 0) {
         await axios
           .post(`${url}assign/reassign`, assignedData, {

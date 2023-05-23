@@ -331,6 +331,9 @@ const ViewAssignedClients = (props) => {
                   { title: "State", field: "state" },
                   { title: "LGA", field: "lga" },
                   { title: "", field: "assigned" },
+                  { title: "Facility", field: "facilityId", hidden: true },
+                  { title: "PersonUuid", field: "personUuid", hidden: true },
+                  { title: "DatimId", field: "datimId", hidden: true },
                   { title: "Action", field: "actions" },
                 ]}
                 isLoading={loading}
@@ -345,6 +348,9 @@ const ViewAssignedClients = (props) => {
                     age: item.age,
                     phone: item.phone,
                     state: item.state,
+                    facilityId: item.facilityId,
+                    personUuid: item.personUuid,
+                    datimId: item.datimId,
                     lga: item.lga,
                     assigned: <Badge color="info">Assigned</Badge>,
                     actions: (
