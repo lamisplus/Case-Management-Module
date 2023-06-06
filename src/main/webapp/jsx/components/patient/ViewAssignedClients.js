@@ -1,4 +1,10 @@
-import React, { useEffect, useCallback, forwardRef, useState } from "react";
+import React, {
+  useEffect,
+  useCallback,
+  forwardRef,
+  useState,
+  useRef,
+} from "react";
 import { useLocation, useHistory } from "react-router-dom";
 import uniq from "lodash/uniq";
 import MaterialTable from "material-table";
@@ -137,12 +143,16 @@ const ViewAssignedClients = (props) => {
   const [loading, setLoading] = useState(false);
   const location = useLocation();
   const { caseManager } = location.state;
+
   const history = useHistory();
   const [addModal, setAddModal] = useState(false);
   const [patient, setPatient] = useState({});
   const classes = useStyles();
   const [assignedData, setAssignedData] = useState(caseManager);
+  const [patients, setPatients] = useState(caseManager.patients);
   const [modal, setModal] = useState(false);
+
+  let tableRef = useRef();
 
   const toggle = () => setAddModal(!addModal);
 
@@ -160,13 +170,16 @@ const ViewAssignedClients = (props) => {
   };
 
   const handleDelete = () => {
+    const hasIds = [];
     const patientId = localStorage.getItem("patientID");
+    hasIds.push(parseInt(patientId));
     axios
       .delete(`${url}assign/delete/${patientId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
         localStorage.removeItem("patientID");
+        setPatients(patients.filter((person) => !hasIds.includes(person.id)));
         Swal.fire({
           icon: "success",
           text: "Patient Unassigned Successfully",
@@ -174,8 +187,9 @@ const ViewAssignedClients = (props) => {
         });
 
         setModal(false);
+        //tableRef.current.onQueryChange();
         // getAllCaseManagers();
-        history.push("/");
+        //history.push("/");
       })
       .catch((error) => {
         Swal.fire({
@@ -318,10 +332,11 @@ const ViewAssignedClients = (props) => {
               <br />
               <br />
               <MaterialTable
+                tableRef={tableRef}
                 icons={tableIcons}
                 title="Patients Assigned"
                 columns={[
-                  { title: "ID", field: "id" },
+                  { title: "ID", field: "id", hidden: true },
                   { title: "Hospital No", field: "hospitalNo" },
                   { title: "Full Name", field: "fullName" },
                   { title: "Sex", field: "sex" },
@@ -338,8 +353,8 @@ const ViewAssignedClients = (props) => {
                 ]}
                 isLoading={loading}
                 data={
-                  assignedData &&
-                  assignedData.patients.map((item) => ({
+                  patients &&
+                  patients.map((item) => ({
                     id: item.id,
                     hospitalNo: item.hospitalNo,
                     fullName: item.fullName,
@@ -426,6 +441,8 @@ const ViewAssignedClients = (props) => {
       <ReassignClientModal
         modalstatus={addModal}
         togglestatus={toggle}
+        patients={patients}
+        setPatients={setPatients}
         // getAllCaseManagers={getAllCaseManagers}
       />
       <Modal isOpen={modal} toggle={onCancelDelete}>

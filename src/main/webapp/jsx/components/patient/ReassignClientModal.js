@@ -76,6 +76,8 @@ const ReassignClientModal = (props) => {
     patients: [],
   });
 
+  let hasIds = [];
+
   const [errors, setErrors] = useState({});
 
   const handleInputChange = (e) => {
@@ -171,6 +173,8 @@ const ReassignClientModal = (props) => {
     e.preventDefault();
 
     let updatedRecord = patient.map((item) => {
+      //console.log(item);
+      hasIds.push(item.id);
       const updated = {
         ...item,
         createdBy: "",
@@ -190,9 +194,13 @@ const ReassignClientModal = (props) => {
             headers: { Authorization: `Bearer ${token}` },
           })
           .then((resp) => {
-            console.log(resp);
+            //console.log(resp);
             toast.success("Patient reassigned successfully");
-            history.push("/");
+            //history.push("/");
+            props.setPatients(
+              props.patients.filter((person) => !hasIds.includes(person.id))
+            );
+            props.togglestatus();
           })
           .catch((err) => {
             //console.log(err);

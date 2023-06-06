@@ -317,10 +317,10 @@ const PatientList = (props) => {
             headers: { Authorization: `Bearer ${token}` },
           })
           .then((resp) => {
-            setSubmitted(true);
-            console.log(resp);
-            toast.success("Case manager assigned to patient successfully");
             localStorage.removeItem("patients");
+            setSubmitted(true);
+            //console.log(resp);
+            toast.success("Case manager assigned to patient successfully");
             setPatients([]);
           })
           .catch((err) => {
