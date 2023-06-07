@@ -6,7 +6,7 @@
 
  @Installer(name = "schema-installer",
          description = "Installs the required database tables",
-         version = 4)
+         version = 9)
  @Order(1)
  public class CaseManagerInstaller extends AcrossLiquibaseInstaller {
      public CaseManagerInstaller() {
