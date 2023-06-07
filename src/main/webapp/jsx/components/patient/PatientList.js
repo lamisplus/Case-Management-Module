@@ -115,7 +115,6 @@ const PatientList = (props) => {
   const [states, setStates] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [facilities, setFacilities] = useState([]);
-  const [assignedClient, setAssignedClient] = useState([]);
   const [kP, setKP] = useState([]);
   const [pregnancyStatus, setPregnancyStatus] = useState([]);
   const [patients, setPatients] = useState([]);
@@ -247,6 +246,10 @@ const PatientList = (props) => {
     setErrors({
       ...temp,
     });
+    //console.log(temp);
+    if (temp.caseManagerId !== "") {
+      setSubmitted(false);
+    }
     return Object.values(temp).every((x) => x === "");
   };
 
@@ -264,6 +267,7 @@ const PatientList = (props) => {
   const getPatient = () => {
     setFiltered(true);
     setLoading(true);
+    setSubmitted(false);
     let state = filterData.state?.split(" ")[1];
     //console.log(state);
     localStorage.setItem("filterData", JSON.stringify(filterData));
@@ -295,6 +299,7 @@ const PatientList = (props) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitted(true);
     const result = JSON.parse(localStorage.getItem("patients"));
 
     let updatedRecord = result.map((item) => {
@@ -308,6 +313,7 @@ const PatientList = (props) => {
     });
 
     assignedData.patients = updatedRecord;
+
     if (validateInputs()) {
       //console.log(assignedData);
 
@@ -533,24 +539,28 @@ const PatientList = (props) => {
                 ""
               )}
             </FormGroup>
-            <Button
-              variant="contained"
-              color="primary"
-              className="float-right mr-1"
-              startIcon={<PersonAddIcon />}
-              onClick={handleSubmit}
-              disabled={submitted ? true : false}
-              style={{
-                float: "right",
-                backgroundColor: "#014d88",
-                fontWeight: "bolder",
-                color: "fff",
-              }}
-            >
-              <span style={{ textTransform: "capitalize" }}>
-                Assign Case Manager{" "}
-              </span>
-            </Button>
+            {!submitted ? (
+              <Button
+                variant="contained"
+                color="primary"
+                className="float-right mr-1"
+                startIcon={<PersonAddIcon />}
+                onClick={handleSubmit}
+                disabled={submitted ? true : false}
+                style={{
+                  float: "right",
+                  backgroundColor: "#014d88",
+                  fontWeight: "bolder",
+                  color: "fff",
+                }}
+              >
+                <span style={{ textTransform: "capitalize" }}>
+                  Assign Case Manager{" "}
+                </span>
+              </Button>
+            ) : (
+              ""
+            )}
           </Col>
         </Row>
       )}
