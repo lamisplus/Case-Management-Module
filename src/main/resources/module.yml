@@ -9,6 +9,7 @@ menus:
     state: Case Manager
     url: /across/resources/static/casemanager/index.html
 umdLocation: /across/resources/static/casemanager/index.html
+gitHubLink: https://api.github.com/repos/lamisplus/Case-Management-Module/releases/latest
 webModules:
   - breadcrumb: Case Manager
     name: CaseManagerModule
