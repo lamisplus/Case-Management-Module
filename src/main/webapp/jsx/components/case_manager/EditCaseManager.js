@@ -65,7 +65,7 @@ const EditCaseManager = (props) => {
   const classes = useStyles();
   const [user, setUser] = useState("");
 
-  //console.log(props.casemanager);
+  console.log(props.casemanager);
 
   const [data, setData] = useState({
     designation: props.casemanager?.designation,
@@ -79,6 +79,8 @@ const EditCaseManager = (props) => {
     created_by: props.casemanager?.createdBy,
     modified_by: "",
     active: props.casemanager?.active,
+    username: props.casemanager?.username,
+    password: "**********",
   });
 
   const Facilities = () => {
@@ -102,9 +104,9 @@ const EditCaseManager = (props) => {
 
   const [contactPhone, setContactPhone] = useState(data.phoneNumber);
 
-  useEffect(() => {
-    setData(props.casemanager);
-  }, [props.casemanager]);
+  // useEffect(() => {
+  //   setData({ ...props.casemanager, password: "********" });
+  // }, [props.casemanager]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -118,16 +120,9 @@ const EditCaseManager = (props) => {
     setContactPhone(e);
   };
 
-  const editCaseManager = async (e) => {
-    e.preventDefault();
-
-    //console.log("Edit data", contactPhone);
-    data.phoneNumber = contactPhone ?? data.phoneNumber;
-    data.modified_by = user;
-
-    //console.log("Edit data", data);
-    await axios
-      .put(`${baseUrl}casemanager/update/${props.casemanager.id}`, data, {
+  const updateContactManager = (id, data) => {
+    axios
+      .put(`${baseUrl}casemanager/update/${id}`, data, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((resp) => {
@@ -138,6 +133,88 @@ const EditCaseManager = (props) => {
         console.log(err);
         toast.error("Something went wrong. Please try again... " + err.message);
       });
+  };
+
+  const editCaseManager = async (e) => {
+    e.preventDefault();
+
+    //console.log("Edit data", contactPhone);
+    data.phoneNumber = contactPhone ?? data.phoneNumber;
+    data.modified_by = user;
+
+    const userPayload = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      username: data.username,
+      email: data.email,
+      phone: data.phoneNumber,
+      role: "",
+      designation: data.designation,
+      gender: data.sex,
+      dateOfBirth: data.dateOfBirth,
+      password: data.password,
+      adminRegistration: true,
+      details: {},
+      userName: data.username,
+      phoneNumber: data.phoneNumber,
+      roles: ["User"],
+      facilityIds: [data.facilityId],
+    };
+
+    const caseManagerDetails = {
+      designation: data.designation,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      sex: data.sex,
+      phoneNumber: data.phoneNumber,
+      facilityId: data.facilityId,
+      religion: data.religion,
+      address: data.address,
+      created_by: data.created_by,
+      modified_by: data.modified_by,
+      active: data.active,
+      username: data.username,
+      password: "********",
+      user_id: "",
+    };
+
+    const userID = parseInt(props.casemanager.user_id);
+    console.log(props.casemanager.user_id);
+    if (props.casemanager.user_id == null || props.casemanager.user_id == "") {
+      await axios
+        .post(`${baseUrl}users`, userPayload, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((resp) => {
+          console.log("create", resp.data);
+          caseManagerDetails.user_id = resp.data;
+
+          updateContactManager(props.casemanager.id, caseManagerDetails);
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error(
+            "Something went wrong. Please try again... " + err.message
+          );
+        });
+    } else {
+      await axios
+        .put(`${baseUrl}users/${userID}`, userPayload, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((resp) => {
+          console.log("update", resp);
+          caseManagerDetails.user_id = resp.data;
+          updateContactManager(props.casemanager.id, caseManagerDetails);
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error(
+            "Something went wrong. Please try again... " + err.message
+          );
+        });
+    }
+
     props.getAllCaseManagers();
     props.togglestatus();
   };
@@ -292,6 +369,46 @@ const EditCaseManager = (props) => {
                           </option>
                         ))}
                       </select>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={6}>
+                    <FormGroup>
+                      <Label for="username" className={classes.label}>
+                        Username <span style={{ color: "red" }}> *</span>
+                      </Label>
+                      <Input
+                        type="text"
+                        name="username"
+                        id="username"
+                        value={data.username}
+                        onChange={handleInputChange}
+                        className="form-control"
+                        style={{
+                          border: "1px solid #014D88",
+                          borderRadius: "0.2rem",
+                        }}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col md={6}>
+                    <FormGroup>
+                      <Label for="password" className={classes.label}>
+                        Password <span style={{ color: "red" }}> *</span>
+                      </Label>
+                      <Input
+                        type="text"
+                        name="password"
+                        id="password"
+                        value={data.password}
+                        onChange={handleInputChange}
+                        className="form-control"
+                        style={{
+                          border: "1px solid #014D88",
+                          borderRadius: "0.2rem",
+                        }}
+                      />
                     </FormGroup>
                   </Col>
                 </Row>
